@@ -4,6 +4,7 @@ public class GameManager : MonoSingleton<GameManager> // 싱글톤 사용
 {
     [Header("Manager 관련 코드")]
     public AudioManager audioManager;
+    public PoolManager poolManager;
 
     [Header("Player 관련 코드")]
     public PlayerController playerController;

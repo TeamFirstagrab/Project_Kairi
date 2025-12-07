@@ -3,7 +3,6 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    public float speed;
     public float jumpForce;
     bool isGrounded;
 
@@ -21,7 +20,7 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         // x 이동
-        float x = inputVec.x * speed * Time.deltaTime;
+        float x = inputVec.x * GameManager.Instance.playerStats.speed * Time.deltaTime;
         transform.Translate(x, 0, 0);
 
         // 방향 플립
