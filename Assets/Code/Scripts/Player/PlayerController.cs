@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rigid;
     SpriteRenderer sprite;
     GrapplingHook grappling;
-    
+
     PlayerInteraction interaction;  // 상호작용
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
