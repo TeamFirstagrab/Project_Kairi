@@ -3,8 +3,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    public float jumpForce;
     bool isGrounded;
+    bool isFalling;     // 훅을 해제하고 떨어지는 중인지 체크
 
     public Vector2 inputVec;
     Rigidbody2D rigid;
@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour
         if (grappling.isAttach) // 매달리기 중일 때
         {
             float hookSwingForce = GameManager.Instance.playerStatsRuntime.hookSwingForce; // rigidbody add force
-            rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 0f));
+            rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 1f));
         }
         else // 일반 이동 중일 때
         {
@@ -52,7 +52,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!isGrounded) return;
 
-        rigid.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        rigid.AddForce(Vector2.up * GameManager.Instance.playerStatsRuntime.jumpForce, ForceMode2D.Impulse);
 
         isGrounded = false;
     }

@@ -530,7 +530,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d8f45148cd5db346b7de84d8e4f0c75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  jumpForce: 0
   inputVec: {x: 0, y: 0}
 --- !u!61 &348979918
 BoxCollider2D:
@@ -634,7 +633,7 @@ MonoBehaviour:
   m_DefaultControlScheme: 
   m_DefaultActionMap: 
   m_SplitScreenIndex: -1
-  m_Camera: {fileID: 1710648482}
+  m_Camera: {fileID: 0}
 --- !u!95 &348979921
 Animator:
   serializedVersion: 7
@@ -1317,6 +1316,7 @@ MonoBehaviour:
   playerStats: {fileID: 11400000, guid: 85d0ceea785f7de46a030e9444c1e8b4, type: 2}
   playerStatsRuntime:
     speed: 0
+    jumpForce: 0
     attack: 0
     maxHP: 0
     currentHP: 0
@@ -1831,7 +1831,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1878708794
 Transform:
   m_ObjectHideFlags: 0
