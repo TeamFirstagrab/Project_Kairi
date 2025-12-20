@@ -18,5 +18,5 @@ MonoBehaviour:
   maxHP: 800
   hookSpeed: 100
   hookDistance: 10
-  hookSwingForce: 10
-  hookEnemyThrowForce: 15
+  hookSwingForce: 15
+  hookEnemyThrowForce: 50
