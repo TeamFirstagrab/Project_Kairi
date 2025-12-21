@@ -12,7 +12,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     PlayerInteraction interaction;  // 상호작용
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -26,21 +25,22 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
     void FixedUpdate()
     {
-        // 대화중일 경우 액션 X
         if (interaction && interaction.GetIsAction()) return;
 
-        // x 이동
         float speed = GameManager.Instance.playerStatsRuntime.speed;
 
-        if (grappling.isAttach) // 매달리기 중일 때
+        if (grappling.isAttach) // 훅 매달림
         {
-            float hookSwingForce = GameManager.Instance.playerStatsRuntime.hookSwingForce; // rigidbody add force
-            rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 1f));
+            float hookSwingForce = GameManager.Instance.playerStatsRuntime.hookSwingForce;
+            rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 0f));
         }
-        else // 일반 이동 중일 때
+        else if (grappling.isAttach)
         {
-            float x = inputVec.x * speed * Time.deltaTime; // translate
-            transform.Translate(x, 0, 0);
+            rigid.linearVelocity = new Vector2(0f, rigid.linearVelocityY);
+        }
+        else // 일반 이동
+        {
+            rigid.linearVelocity = new Vector2(inputVec.x * speed, rigid.linearVelocityY);
         }
 
         // 방향 플립
@@ -49,6 +49,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         else if (inputVec.x < 0)
             sprite.flipX = true;
     }
+
 
     void OnJump()
     {
@@ -64,8 +65,10 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (collision.contacts[0].normal.y > 0.7f)
         {
             isGrounded = true;
+            rigid.linearVelocity = new Vector2(0f, rigid.linearVelocityY);
         }
     }
+
 
     void OnMove(InputValue value)
     {

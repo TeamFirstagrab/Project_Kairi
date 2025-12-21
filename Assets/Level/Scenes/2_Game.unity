@@ -692,8 +692,8 @@ MonoBehaviour:
   isLineMax: 0
   isAttach: 0
   isEnemyAttach: 0
-  slowFactor: 0.2
-  slowLength: 1
+  slowFactor: 0.1
+  slowLength: 0.5
   enemyFollowOffset: {x: 1, y: 0, z: 0}
   groundCheck: {fileID: 1089452493}
   groundLayer:

@@ -15,6 +15,7 @@ public class GrapplingHook : MonoBehaviour
     public bool isLineMax;
     public bool isAttach;
     public bool isEnemyAttach;
+    bool hasShakedOnAttach = false;
 
     // 슬로우 효과 변수
     public float slowFactor;    // 슬로우 비율
@@ -25,9 +26,7 @@ public class GrapplingHook : MonoBehaviour
     private List<Transform> enemies = new List<Transform>();
     Rigidbody2D rb;
     SpriteRenderer sprite;
-    Coroutine gravityCoroutine;
-    float originalGravity;
-    float originalSpeed;
+    bool isStopped = false;
 
     [SerializeField] Transform groundCheck;
     [SerializeField] LayerMask groundLayer;
@@ -102,24 +101,27 @@ public class GrapplingHook : MonoBehaviour
 
         else if (isAttach)
         {
+            if (!hasShakedOnAttach)
+            {
+                GameManager.Instance.cameraShake.ShakeForSeconds(0.1f);
+                hasShakedOnAttach = true;
+            }
+
             if (Mouse.current.leftButton.wasPressedThisFrame)
             {
                 isAttach = false;
                 isHookActive = false;
                 isLineMax = false;
+                hasShakedOnAttach = false; // 다음 훅을 위해 초기화
+
                 hook.GetComponent<Hooking>().joint2D.enabled = false;
                 hook.gameObject.SetActive(false);
-                //if (gravityCoroutine != null)
-                //    StopCoroutine(gravityCoroutine);
 
-                //gravityCoroutine = StartCoroutine(TempChangeGravity(0.2f, 0f, 1f));
-
-                // 슬로우 효과
                 if (slowCoroutine != null)
                     StopCoroutine(slowCoroutine);
 
                 slowCoroutine = StartCoroutine(SlowRoutine());
-            } 
+            }
         }
 
         else if (isEnemyAttach)

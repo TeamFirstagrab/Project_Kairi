@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class ESCKey : MonoBehaviour
 {
@@ -22,7 +23,7 @@ public class ESCKey : MonoBehaviour
     // 옵션창 띄우기 함수
     void openOption()
     {
-        if (Input.GetKeyDown(KeyCode.Escape)) // ESC 키 입력 감지
+        if (Keyboard.current.escapeKey.wasPressedThisFrame) // ESC 키 입력 감지
         {
             isPaused = !isPaused; // 상태 반전
             Debug.Log(isPaused);
