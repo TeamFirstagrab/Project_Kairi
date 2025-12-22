@@ -51,7 +51,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     void OnJump()
     {
         if (!isGrounded) return;
-
+        GameManager.Instance.audioManager.PlayJumpSound(1f);
         rigid.AddForce(Vector2.up * GameManager.Instance.playerStatsRuntime.jumpForce, ForceMode2D.Impulse);
 
         isGrounded = false;

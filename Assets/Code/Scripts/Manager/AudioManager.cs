@@ -4,12 +4,18 @@ public class AudioManager : MonoBehaviour
 {
     [Header("배경음악")]
     public AudioSource bgmSource;
-   
+
     [Header("효과음")]
     public AudioSource sfxSource;
 
-    [Header("효과음 리스트")]
-    public AudioClip testSound;
+    [Header("플레이어 효과음")]
+    public AudioClip playerJump;
+
+    [Header("갈고리 효과음")]
+    public AudioClip hookAttach;
+    public AudioClip hookDraft;
+    public AudioClip hookShoot;
+    public AudioClip hookThrowEnemy;
 
     // 배경음 재생
     public void PlayBGM(AudioClip clip, bool loop = true)
@@ -32,7 +38,20 @@ public class AudioManager : MonoBehaviour
     {
         if (sfxSource != null && clip != null) sfxSource.PlayOneShot(clip, volume);
     }
+    public void StopSFX()
+    {
+        if (sfxSource == null) return;
 
+        sfxSource.Stop();
+    }
     // 편의 함수
-    public void PlayHitSound(float volume = 1f) => PlaySFX(testSound, volume);
+
+    // 플레이어
+    public void PlayJumpSound(float volume = 1f) => PlaySFX(playerJump, volume);
+
+    // 갈고리
+    public void HookAttachSound(float volume = 1f) => PlaySFX(hookAttach, volume);
+    public void HookDraftSound(float volume = 1f) => PlaySFX(hookDraft, volume);
+    public void HookShootSound(float volume = 1f) => PlaySFX(hookShoot, volume);
+    public void HookThrowEnemySound(float volume = 1f) => PlaySFX(hookThrowEnemy, volume);
 }

@@ -16,6 +16,9 @@ public class GrapplingHook : MonoBehaviour
     public bool isAttach;
     public bool isEnemyAttach;
     bool hasShakedOnAttach = false;
+    bool hasPlayedAttachSound = false;
+    bool isPlayedDraftSound = false;
+    bool hasPlayedShootSound = false;
 
     // 슬로우 효과 변수
     public float slowFactor;    // 슬로우 비율
@@ -59,9 +62,17 @@ public class GrapplingHook : MonoBehaviour
         line.SetPosition(0, transform.position);
         line.SetPosition(1, hook.position);
 
+        // 갈고리 or 적에 처음 붙었을 때
+        if ((isAttach || isEnemyAttach) && !hasPlayedAttachSound)
+        {
+            GameManager.Instance.audioManager.HookAttachSound(1f);
+            hasPlayedAttachSound = true;
+        }
+
         if (Mouse.current.leftButton.wasPressedThisFrame && !isHookActive && !isAttach && !isEnemyAttach)
         {
-            GameManager.Instance.cameraShake.ShakeForSeconds(0.1f);
+            GameManager.Instance.cameraShake.ShakeForSeconds(0.1f); // 카메라 흔들기
+            GameManager.Instance.audioManager.HookShootSound(0.7f); // 갈고리 발사 효과음
             hook.position = transform.position;
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
             mouseWorldPos.z = 0f;
@@ -81,6 +92,7 @@ public class GrapplingHook : MonoBehaviour
             {
                 // 최대 사거리 도달 상태로 전환
                 isLineMax = true;
+                hasPlayedShootSound = false;
             }
         }
 
@@ -96,6 +108,7 @@ public class GrapplingHook : MonoBehaviour
                 // 훅 상태 초기화
                 isHookActive = false;
                 isLineMax = false;
+                hasPlayedShootSound = false;
                 // 훅 오브젝트 비활성화
                 hook.gameObject.SetActive(false);
             }
@@ -114,7 +127,8 @@ public class GrapplingHook : MonoBehaviour
                 isAttach = false;
                 isHookActive = false;
                 isLineMax = false;
-                hasShakedOnAttach = false; // 다음 훅을 위해 초기화
+                hasShakedOnAttach = false;
+                hasPlayedAttachSound = false;
 
                 hook.GetComponent<Hooking>().joint2D.enabled = false;
                 hook.gameObject.SetActive(false);
@@ -129,7 +143,18 @@ public class GrapplingHook : MonoBehaviour
                 if (hookJoint != null && hookJoint.enabled)
                 {
                     hookJoint.distance = Mathf.Max(0.5f, hookJoint.distance - 0.1f); // 라인 점점 줄어들게
+
+                    if (!isPlayedDraftSound)
+                    {
+                        GameManager.Instance.audioManager.HookDraftSound(1f);
+                        isPlayedDraftSound = true;
+                    }
                 }
+            }
+            if (Mouse.current.rightButton.wasReleasedThisFrame)
+            {
+                GameManager.Instance.audioManager.StopSFX();
+                isPlayedDraftSound = false;
             }
         }
 
@@ -205,6 +230,7 @@ public class GrapplingHook : MonoBehaviour
     {
         if (!enemies.Contains(enemy)) return;
 
+        GameManager.Instance.audioManager.HookThrowEnemySound(1f); // 적 던지는 효과음
         enemies.Remove(enemy);
 
         // 부모 해제
@@ -223,7 +249,11 @@ public class GrapplingHook : MonoBehaviour
         }
 
         if (enemies.Count == 0)
+        {
             isEnemyAttach = false;
+            hasPlayedAttachSound = false;
+        }
+
 
         line.enabled = true;
 
