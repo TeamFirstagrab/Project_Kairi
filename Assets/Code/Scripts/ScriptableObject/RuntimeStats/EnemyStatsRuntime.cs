@@ -10,7 +10,8 @@ public class EnemyStatsRuntime
     public float maxHP;
     public float currentHP;
 
-    public void CopyFrom(EnemyStats baseStats)
+    // »ý¼ºÀÚ
+    public EnemyStatsRuntime(EnemyStats baseStats)
     {
         attack = baseStats.attack;
         maxHP = baseStats.HP;

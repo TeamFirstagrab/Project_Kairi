@@ -33,12 +33,7 @@ public class GameManager : MonoSingleton<GameManager> // 싱글톤 사용
 
         base.Awake(); // MonoSingleton의 Awake 호출
 
-        // 적 초기화
-        enemyStatsRuntime = new EnemyStatsRuntime();
-        enemyStatsRuntime.CopyFrom(enemyStats); // 스텟 값 복제
-
         // 플레이어 초기화
-        playerStatsRuntime = new PlayerStatsRuntime();
-        playerStatsRuntime.CopyFrom(playerStats); // 스텟 값 복제
+        playerStatsRuntime = new PlayerStatsRuntime(playerStats);   // 스탯 값 복제
     }
 }

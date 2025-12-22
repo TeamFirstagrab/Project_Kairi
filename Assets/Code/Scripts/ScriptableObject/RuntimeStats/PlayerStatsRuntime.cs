@@ -24,7 +24,8 @@ public class PlayerStatsRuntime
     [Header("哎绊府 各 带瘤绰 塞")]
     public float hookEnemyThrowForce;
 
-    public void CopyFrom(PlayerStats baseStats)
+    // 积己磊
+    public PlayerStatsRuntime(PlayerStats baseStats)
     {
         speed = baseStats.speed;
         jumpForce = baseStats.jumpForce;
