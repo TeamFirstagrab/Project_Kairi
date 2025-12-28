@@ -33,27 +33,11 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         if (grappling.isAttach) // 훅 매달림
         {
-            Vector2 hookPos = grappling.hook.position;
-            Vector2 playerPos = transform.position;
+			float hookSwingForce = GameManager.Instance.playerStatsRuntime.hookSwingForce;
+			rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 0f));
 
-            // 훅 -> 플레이어 방향벡터
-            Vector2 dir = (playerPos - hookPos).normalized;
-
-            float inputX = inputVec.x;
-
-            if (inputX > 0.1f)  // 오른쪽 방향키 = 항상 반시계 방향
-            {
-                Vector2 counterClockwise = new Vector2(-dir.y, dir.x);
-                rigid.AddForce(counterClockwise * GameManager.Instance.playerStatsRuntime.hookSwingForce);
-            }
-            else if (inputX < -0.1f) // 왼쪽 방향키 = 항상 시계 방향
-            {
-                Vector2 clockwise = new Vector2(dir.y, -dir.x);
-                rigid.AddForce(clockwise * GameManager.Instance.playerStatsRuntime.hookSwingForce);
-            }
-
-            // 최대 속도 제한
-            if (rigid.linearVelocity.magnitude > GameManager.Instance.playerStatsRuntime.maxSwingSpeed)
+			// 최대 속도 제한
+			if (rigid.linearVelocity.magnitude > GameManager.Instance.playerStatsRuntime.maxSwingSpeed)
             {
                 rigid.linearVelocity = rigid.linearVelocity.normalized * GameManager.Instance.playerStatsRuntime.maxSwingSpeed;
             }
@@ -81,9 +65,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     void OnJump()
 	{
-		// 그래플링 사용 중 점프 시
-		if (grappling.isAttach) return;
-
 		// 플레이어가 바닥이 아닐 경우
 		if (!isGrounded) return;
 
