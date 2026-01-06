@@ -19212,6 +19212,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogManager
   talkPanel: {fileID: 1449326991}
   talkText: {fileID: 499749626}
+  shakeAmount: 0.01
+  shakeSpeed: 10
   dialogText: "AD\uB97C| \uB20C\uB7EC| \uC774\uB3D9\nSPACE\uB97C||| \uB20C\uB7EC||||||||
     \uC810\uD504"
   typingSpeed: 0.05
@@ -20219,6 +20221,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogManager
   talkPanel: {fileID: 515005634}
   talkText: {fileID: 339037456}
+  shakeAmount: 2
+  shakeSpeed: 15
   dialogText: 
   typingSpeed: 0.05
   isAction: 0
@@ -42157,6 +42161,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogManager
   talkPanel: {fileID: 515005634}
   talkText: {fileID: 339037456}
+  shakeAmount: 2
+  shakeSpeed: 15
   dialogText: 
   typingSpeed: 0.05
   isAction: 0
