@@ -2,6 +2,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+using sceneName = Globals.SceneName;
+
 public class BtnType : MonoBehaviour
 {
     public EnumType.BTNType currentType;
@@ -43,7 +45,7 @@ public class BtnType : MonoBehaviour
         switch (currentType)
         {
             case EnumType.BTNType.Start:
-                SceneManager.LoadScene("2_Game");
+                SceneManager.LoadScene(sceneName.stage01);
                 break;
 
             case EnumType.BTNType.Option:
@@ -78,7 +80,7 @@ public class BtnType : MonoBehaviour
                 break;
 
             case EnumType.BTNType.Leave:
-                SceneManager.LoadScene("1_MainMenu");
+                SceneManager.LoadScene(sceneName.mainMenu);
                 break;
         }
 

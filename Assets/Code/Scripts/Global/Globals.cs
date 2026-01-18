@@ -5,6 +5,13 @@
 
 public class Globals
 {
+	// 씬 이름
+	public static class SceneName
+	{
+		public static readonly string mainMenu = "1_MainMenu";
+		public static readonly string stage01 = "2_Stage0_1";
+	}
+
 	// 태그 이름(string) 관련 클래스
 	public static class TagName
 	{
