@@ -1411,7 +1411,6 @@ MonoBehaviour:
   isLineMax: 0
   isAttach: 0
   isAttachElement: 0
-  isSlowing: 0
   slowFactor: 0.5
   slowLength: 2
   followOffset: {x: 1, y: 0, z: 0}
@@ -21551,6 +21550,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   audioManager: {fileID: 849897822}
   poolManager: {fileID: 887307777}
+  dialogSystem: {fileID: 0}
   cameraShake: {fileID: 2027666406}
   playerController: {fileID: 156809791}
   grapplingHook: {fileID: 156809794}
