@@ -9,11 +9,6 @@ public class TimelineController : MonoBehaviour
 
     public GameObject objectToEnable;
 
-    void Start()
-    {
-        director.Play();
-    }
-
     void Awake()
     {
         director = GetComponent<PlayableDirector>();

@@ -9,7 +9,7 @@ public class ChangeScenes : MonoBehaviour
 
     public float fadeDuration = 0.8f;
 
-    private bool isTransitioning = false;
+    // private bool isTransitioning = false;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -23,7 +23,7 @@ public class ChangeScenes : MonoBehaviour
     void LoadNextScene()
     {
         int nextIndex = SceneManager.GetActiveScene().buildIndex + 1;
-        SceneManager.LoadScene("1_MainMenu");
+        SceneManager.LoadScene(nextIndex);
     }
 
 }
