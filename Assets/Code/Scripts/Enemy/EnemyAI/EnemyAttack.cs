@@ -38,6 +38,8 @@ public class EnemyAttack : MonoBehaviour
     private bool blinking = false;          // 조준선이 깜빡이는 상태인지 여부
     LineRenderer line;                      // 플레이어와 적 사이를 잇는 조준선
 
+    private bool isAttacking = false;
+
     private void Start()
     {
         startPos = transform.position;
@@ -65,22 +67,42 @@ public class EnemyAttack : MonoBehaviour
             isLayer
         );
 
-        if (raycast.collider != null)
+        if (raycast.collider != null && targetPlayer == null)
         {
             curTime = 0;
-
-            if (targetPlayer == null)
-                targetPlayer = raycast.collider.transform;
+            targetPlayer = raycast.collider.transform;
         }
 
         if (targetPlayer != null)
         {
             float dist = Vector2.Distance(transform.position, targetPlayer.position);
 
-            if (dist < atkDistince)
+            if (dist > atkDistince)
             {
-                line.SetPosition(0, enemyTransform.position);
-                line.SetPosition(1, targetPlayer.position);
+                line.enabled = false;
+                blinking = false;
+            }
+
+            if (dist < atkDistince || isAttacking)
+            {
+                if (dist < atkDistince)
+                {
+                    Vector2 dir = (targetPlayer.position - enemyTransform.position).normalized;
+
+                    RaycastHit2D hit = Physics2D.Raycast(
+                        enemyTransform.position,
+                        dir,
+                        atkDistince,
+                        ~LayerMask.GetMask("Enemy")
+                    );
+
+                    line.SetPosition(0, enemyTransform.position);
+
+                    if (hit.collider != null)
+                        line.SetPosition(1, hit.point);
+                    else
+                        line.SetPosition(1, targetPlayer.position);
+                }
 
                 detectTimer += Time.deltaTime;
 
@@ -100,8 +122,11 @@ public class EnemyAttack : MonoBehaviour
                 }
                 else
                 {
+                    line.enabled = false;
+                    blinking = false;
+
+                    isAttacking = true;
                     attackWindowTimer += Time.deltaTime;
-                    blinking = true;
 
                     if (currentTime <= 0)
                     {
@@ -118,7 +143,9 @@ public class EnemyAttack : MonoBehaviour
                 }
             }
             else
+            {
                 transform.position = Vector3.MoveTowards(transform.position, targetPlayer.position, Time.deltaTime * speed);
+            }
 
             if (currentTime > 0)
                 currentTime -= Time.deltaTime;
@@ -144,6 +171,7 @@ public class EnemyAttack : MonoBehaviour
         Debug.DrawRay(transform.position + Vector3.up, rayDir * distance, Color.red);
         Debug.DrawRay(transform.position - Vector3.up, rayDir * distance, Color.red);
     }
+
     void ResetAttackState()
     {
         detectTimer = 0f;
@@ -152,7 +180,9 @@ public class EnemyAttack : MonoBehaviour
         line.enabled = false;
         RemoveAiming();
         targetPlayer = null;
+        isAttacking = false;
     }
+
     void CreateAiming(Transform player)
     {
         if (currentAiming == null)
@@ -163,6 +193,7 @@ public class EnemyAttack : MonoBehaviour
             currentAiming.transform.localRotation = Quaternion.identity;
         }
     }
+
     void RemoveAiming()
     {
         if (currentAiming != null)
@@ -171,14 +202,18 @@ public class EnemyAttack : MonoBehaviour
             currentAiming = null;
         }
     }
+
     private void OnDisable()
     {
         RemoveAiming();
         targetPlayer = null;
+        isAttacking = false;
     }
+
     private void OnDestroy()
     {
         RemoveAiming();
         targetPlayer = null;
+        isAttacking = false;
     }
 }
