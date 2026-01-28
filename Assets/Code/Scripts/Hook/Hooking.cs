@@ -11,12 +11,12 @@ public class Hooking : MonoBehaviour
     public DistanceJoint2D joint2D;
     [Header("훅 최소 길이")]
     public float minHookLength = 2.0f;
-	GrapplingHook grappling;
+    GrapplingHook grappling;
 
     void Start()
     {
         joint2D = GetComponent<DistanceJoint2D>();     // 현재 오브젝트에 붙어있는 DistanceJoint2D 가져오기
-		grappling = GameManager.Instance.grapplingHook;
+        grappling = GameManager.Instance.grapplingHook;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -41,7 +41,7 @@ public class Hooking : MonoBehaviour
             grappling.ApplyHookImpulse(transform.position);    // 힘 주기
             grappling.isAttach = true;                         // 훅이 연결된 상태
             grappling.isHookActive = false;                    // 훅 발사 상태 종료
-			grappling.isLineMax = false;                       // 줄 최대 길이 상태 해제
+            grappling.isLineMax = false;                       // 줄 최대 길이 상태 해제
 
             // 갈고리가 벽에 박히는 순간 벽과 플레이어 거리가 너무 가깝다면 길이 보정
             if (joint2D.distance < minHookLength)
@@ -50,5 +50,5 @@ public class Hooking : MonoBehaviour
         // 몬스터/오브젝트 잡기
         if (collision.CompareTag(tagName.enemy) || collision.CompareTag(tagName.throwingEnemy) || collision.CompareTag(tagName.obj))
             GameManager.Instance.grapplingHook.AttachElement(collision.transform);
-	}
+    }
 }
