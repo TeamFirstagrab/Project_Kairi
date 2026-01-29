@@ -45,7 +45,7 @@ public class EnemyBullet : MonoBehaviour
             ReturnToPool();
         }
 
-        if (!other.isTrigger && !other.CompareTag("Player") && !other.CompareTag("Enemy"))
+        if (!other.isTrigger && !other.CompareTag("Player") && !other.CompareTag("Enemy") && !other.CompareTag("Bullet"))
         {
             ReturnToPool();
         }
