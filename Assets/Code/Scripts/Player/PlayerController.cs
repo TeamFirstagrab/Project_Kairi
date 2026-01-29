@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 	PlayerInteraction interaction;  // 상호작용
 	Animator animator;              // 애니메이션
     private Coroutine damageCanvasCoroutine;
+    private Coroutine damagedColorCoroutine;
 
     public float maxTime;           // 땅에서 움직이지 않을 때 일정 시간 이후 Run에서 Idle
 	private float curTime;
@@ -169,14 +170,24 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (damageCanvasCoroutine != null)
             StopCoroutine(damageCanvasCoroutine);
 
+        if (damagedColorCoroutine != null)
+            StopCoroutine(damagedColorCoroutine);
+
         damageCanvasCoroutine = StartCoroutine(ShowDamagedCanvas());
+        damagedColorCoroutine = StartCoroutine(PlayerDamagedColor());
     }
 
-    IEnumerator ShowDamagedCanvas()
+    IEnumerator ShowDamagedCanvas()             // 데미지 UI 코루틴
     {
         damagedCanvas.enabled = true;
         yield return new WaitForSeconds(1f);
         damagedCanvas.enabled = false;
+    }
+    IEnumerator PlayerDamagedColor()            // 데미지 플레이어 색 변경
+    {
+        sprite.color = Color.red;
+        yield return new WaitForSeconds(0.2f);
+        sprite.color = Color.white;
     }
 
     // 바닥 체크
