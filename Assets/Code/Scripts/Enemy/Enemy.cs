@@ -35,6 +35,9 @@ public class Enemy : MonoBehaviour, IDamageable
 
     void Die()
     {
+        int randomNum = Random.Range(1, 4); // 1 ~ 3
+        Debug.Log($"{randomNum}번 죽음 효과");
+
         // 풀로 반환
         ownerSpawner?.OnEnemyDead(this);
         GameManager.Instance.poolManager.ReturnToPool(gameObject);
