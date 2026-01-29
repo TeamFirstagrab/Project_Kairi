@@ -1,4 +1,5 @@
 using UnityEngine;
+using tagName = Globals.TagName;
 
 public class EnemyRock : MonoBehaviour
 {
@@ -17,7 +18,7 @@ public class EnemyRock : MonoBehaviour
 
     void OnEnable()
     {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        GameObject player = GameObject.FindGameObjectWithTag(tagName.player);
 
         if (player != null)
         {
@@ -40,14 +41,14 @@ public class EnemyRock : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag(tagName.player))
         {
             Debug.Log("플레이어 Rock 피격");
             GameManager.Instance.playerController.TakeDamage(1);
             ReturnToPool();
         }
 
-        if (!other.isTrigger && !other.CompareTag("Player") && !other.CompareTag("Enemy") && !other.CompareTag("Bullet"))
+        if (!other.isTrigger && !other.CompareTag(tagName.player) && !other.CompareTag(tagName.enemy) && !other.CompareTag(tagName.bullet))
             ReturnToPool();
     }
 
@@ -55,6 +56,7 @@ public class EnemyRock : MonoBehaviour
     {
         GameManager.Instance.poolManager.ReturnToPool(gameObject);
     }
+
     void OnDisable()
     {
         CancelInvoke();

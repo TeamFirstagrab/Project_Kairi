@@ -1,5 +1,6 @@
 using UnityEngine;
-public class EnemyAttack : MonoBehaviour
+
+public class LongRangeEnemy : MonoBehaviour
 {
     [Header("감지 거리")]
     public float distance;
