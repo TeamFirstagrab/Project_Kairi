@@ -9,8 +9,6 @@ public class EnemyAttack : MonoBehaviour
     public LayerMask isLayer;
     [Header("이동 속도")]
     public float speed;
-    [Header("발사할 총알 프리팹")]
-    public GameObject bullet;
     [Header("총알이 생성 위치 오프셋 (적 기준)")]
     public Vector3 bulletPos;
     [Header("한 번 발사 후 다음 발사까지의 쿨타임")]
@@ -59,22 +57,37 @@ public class EnemyAttack : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Vector2 rayDir = transform.right * moveDirection;
-        RaycastHit2D raycast = Physics2D.CapsuleCast(
+        HandleRaycast();
+        HandleGrabbed();
+        HandleAttack();
+    }
+
+    public void HandleRaycast() // Raycast 설정
+    {
+        Vector2 rightDir = Vector2.right;
+        Vector2 leftDir = Vector2.left;
+
+        RaycastHit2D hitRight = Physics2D.CapsuleCast(
             transform.position,
             new Vector2(3f, 16f),
             CapsuleDirection2D.Vertical,
             0f,
-            rayDir,
+            rightDir,
             distance,
             isLayer
         );
 
-        if (isGrabbed)
-        {
-            ResetAttackState(); // 조준선, 에이밍 UI 제거
-            return;
-        }
+        RaycastHit2D hitLeft = Physics2D.CapsuleCast(
+            transform.position,
+            new Vector2(3f, 16f),
+            CapsuleDirection2D.Vertical,
+            0f,
+            leftDir,
+            distance,
+            isLayer
+        );
+
+        RaycastHit2D raycast = hitRight.collider != null ? hitRight : hitLeft;
 
         if (raycast.collider != null && targetPlayer == null)
         {
@@ -83,6 +96,32 @@ public class EnemyAttack : MonoBehaviour
             targetAimPoint = targetPlayer.Find("AimPoint");
         }
 
+        if (raycast.collider == null && targetPlayer == null && curTime >= maxTime)
+            moveDirection *= -1;
+
+        HandleDrawRaycast();
+    }
+    public void HandleDrawRaycast() // Raycast 시각화
+    {
+        Vector3 upOffset = Vector3.up;
+        Vector3 downOffset = Vector3.down;
+        Debug.DrawRay(transform.position + upOffset, Vector2.right * distance, Color.red);
+        Debug.DrawRay(transform.position + downOffset, Vector2.right * distance, Color.red);
+        Debug.DrawRay(transform.position + upOffset, Vector2.left * distance, Color.blue);
+        Debug.DrawRay(transform.position + downOffset, Vector2.left * distance, Color.blue);
+    }
+
+    public void HandleGrabbed()
+    {
+        if (isGrabbed)          // 플레이어에게 잡혔을 때
+        {
+            ResetAttackState(); // 에이밍 UI 제거
+            return;
+        }
+    }
+
+    public void HandleAttack()
+    {
         if (targetPlayer != null && targetAimPoint != null)
         {
             float dist = Vector2.Distance(transform.position, targetPlayer.position);
@@ -178,12 +217,6 @@ public class EnemyAttack : MonoBehaviour
             line.startColor = Color.red;
             line.endColor = Color.red;
         }
-
-        if (raycast.collider == null && targetPlayer == null && curTime >= maxTime)
-            moveDirection *= -1;
-
-        Debug.DrawRay(transform.position + Vector3.up, rayDir * distance, Color.red);
-        Debug.DrawRay(transform.position - Vector3.up, rayDir * distance, Color.red);
     }
 
     public void ResetAttackState()
