@@ -27,15 +27,20 @@ public class GameManager : MonoSingleton<GameManager> // 싱글톤 사용
     public PlayerStatsRuntime playerStatsRuntime;
     public EnemyStatsRuntime enemyStatsRuntime;
 
-    [Header("메뉴 관련")]
-    public ESCKey escKey;
-
-    [Header("씬 관련")]
-    public SceneReloader sceneReloader;
+    [HideInInspector] public ESCKey escKey;					// 메뉴 관련
+	[HideInInspector] public SceneReloader sceneReloader;	// 씬 관련
 
     protected new void Awake()
-    {
-		if(managerInstance)
+	{
+		sceneReloader = GetComponent<SceneReloader>();
+		escKey = GetComponent<ESCKey>();
+		if(!escKey || !sceneReloader)
+		{
+			Debug.LogWarning("escKey 또는 sceneReloader 데이터 없음");
+			return;
+		}
+
+		if (managerInstance)
 		{
 			DestroyImmediate(this.gameObject);
 			return;
