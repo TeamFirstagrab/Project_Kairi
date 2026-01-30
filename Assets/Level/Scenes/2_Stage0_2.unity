@@ -885,6 +885,8 @@ Transform:
   - {fileID: 619394802}
   - {fileID: 509401724}
   - {fileID: 1383601350}
+  - {fileID: 1657247644}
+  - {fileID: 289153629}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &156809788 stripped
@@ -11627,6 +11629,55 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawnerManager
   spawners:
   - {fileID: 1885347618}
+--- !u!1 &289153628
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 289153629}
+  - component: {fileID: 289153630}
+  m_Layer: 0
+  m_Name: TV Global Volume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &289153629
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 289153628}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1.296526, y: 3.2404041, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 149336301}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &289153630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 289153628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
+  m_IsGlobal: 1
+  priority: 0
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: 1eacd2334e50f0343a371cbeff3b734a, type: 2}
 --- !u!1 &319939750
 GameObject:
   m_ObjectHideFlags: 0
@@ -11637,8 +11688,9 @@ GameObject:
   m_Component:
   - component: {fileID: 319939754}
   - component: {fileID: 319939753}
-  - component: {fileID: 319939752}
   - component: {fileID: 319939751}
+  - component: {fileID: 319939756}
+  - component: {fileID: 319939755}
   m_Layer: 0
   m_Name: PlayerDieObject
   m_TagString: Untagged
@@ -11692,18 +11744,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &319939752
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 319939750}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5774ca55602690429dcb65ccef8af75, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerDieObject
 --- !u!212 &319939753
 SpriteRenderer:
   serializedVersion: 2
@@ -11778,6 +11818,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &319939755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 319939750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5575f981a9e4c3409d62cd0e38d3c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectController
+  explosionObject: 0
+  explosionEffectPrefab: {fileID: 0}
+  crackObject: 0
+  maxCount: 3
+  count: 0
+  playerDieObject: 1
+  isGrounded: 0
+  hasCollided: 0
+--- !u!50 &319939756
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 319939750}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &325858059
 GameObject:
   m_ObjectHideFlags: 0
@@ -20771,6 +20858,55 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.InputActionReference
   m_Asset: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_ActionId: 24908448-c609-4bc3-a128-ea258674378a
+--- !u!1 &1657247643
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1657247644}
+  - component: {fileID: 1657247645}
+  m_Layer: 0
+  m_Name: Glitch Global Volume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1657247644
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1657247643}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1.296526, y: 3.2404041, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 149336301}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1657247645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1657247643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
+  m_IsGlobal: 1
+  priority: 0
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: 027cdfd4ff6837c40a08b368e98651f2, type: 2}
 --- !u!1 &1703694753
 GameObject:
   m_ObjectHideFlags: 0
@@ -27381,6 +27517,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1579203722}
     - target: {fileID: 4756874103759277193, guid: aacc80020f45af9459318ec226fa961d, type: 3}
+      propertyPath: tvGlobalVolume
+      value: 
+      objectReference: {fileID: 289153630}
+    - target: {fileID: 4756874103759277193, guid: aacc80020f45af9459318ec226fa961d, type: 3}
       propertyPath: slowGaugeSlider
       value: 
       objectReference: {fileID: 1846572669}
@@ -27388,6 +27528,10 @@ PrefabInstance:
       propertyPath: walkSoundInterval
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 4756874103759277193, guid: aacc80020f45af9459318ec226fa961d, type: 3}
+      propertyPath: glitchGlobalVolume
+      value: 
+      objectReference: {fileID: 1657247645}
     - target: {fileID: 6031363488768780692, guid: aacc80020f45af9459318ec226fa961d, type: 3}
       propertyPath: m_Camera
       value: 
@@ -27608,10 +27752,10 @@ SceneRoots:
   - {fileID: 1368826550}
   - {fileID: 815410398}
   - {fileID: 1772468295}
-  - {fileID: 149336301}
   - {fileID: 1562949482}
   - {fileID: 1965681171}
   - {fileID: 1968028554}
   - {fileID: 1885347619}
   - {fileID: 135085512}
   - {fileID: 319939754}
+  - {fileID: 149336301}
