@@ -1,15 +1,20 @@
+using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections;
-using UnityEngine.UI;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using static UnityEngine.LowLevelPhysics2D.PhysicsShape;
 using playerState = EnumType.PlayerState;
 using tagName = Globals.TagName;
-using Unity.VisualScripting;
 
 public class PlayerController : MonoBehaviour, IDamageable
 {
+    [Header("Glitch Global Volume 오브젝트")]
+    public Volume glitchGlobalVolume;
+    [Header("TV Global Volume 오브젝트")]
+    public Volume tvGlobalVolume;
     [Header("데미지 UI")]
     public Canvas damagedCanvas;
     [Header("슬로우 게이지 UI")]
@@ -45,6 +50,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     PlayerInteraction interaction;  // 상호작용
     Animator animator;              // 애니메이션
 
+    private Coroutine playerDieCoroutine;
     private Coroutine damageCanvasCoroutine;
     private Coroutine damagedColorCoroutine;
     private bool wasAttach;
@@ -62,6 +68,8 @@ public class PlayerController : MonoBehaviour, IDamageable
 	{
 		isGrounded = true;
         damagedCanvas.enabled = false;
+        glitchGlobalVolume.enabled = false;
+        tvGlobalVolume.enabled = false;
         SetPlayerState(playerState.Idle);
 	}
 
@@ -176,8 +184,12 @@ public class PlayerController : MonoBehaviour, IDamageable
         GameManager.Instance.audioManager.PlayDamagedSound(1f);         // 데미지 사운드 재생
         GameManager.Instance.playerStatsRuntime.currentHP -= attack;    // 체력 감소
 
-        if (GameManager.Instance.playerStatsRuntime.currentHP <= 0)
-            GameManager.Instance.sceneReloader.Reload();                // 씬 리로드
+        if (GameManager.Instance.playerStatsRuntime.currentHP <= 0)     // 체력이 0 이하일 때
+        {
+            if (playerDieCoroutine == null)
+                playerDieCoroutine = StartCoroutine(PlayerDie());
+            return;
+        }
 
         // 이미 실행 중이면 중단 (연속 피격 대응)
         if (damageCanvasCoroutine != null)
@@ -188,6 +200,19 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         damageCanvasCoroutine = StartCoroutine(ShowDamagedCanvas());
         damagedColorCoroutine = StartCoroutine(PlayerDamagedColor());
+    }
+
+    IEnumerator PlayerDie()             // 데미지 UI 코루틴
+    {
+        if (glitchGlobalVolume != null & tvGlobalVolume)
+        {
+            glitchGlobalVolume.enabled = true;
+            tvGlobalVolume.enabled = true;
+            yield return new WaitForSeconds(0.5f);
+            Destroy(glitchGlobalVolume.gameObject);
+            Destroy(tvGlobalVolume.gameObject);
+            GameManager.Instance.sceneReloader.Reload();    // 씬 리로드
+        } 
     }
 
     IEnumerator ShowDamagedCanvas()             // 데미지 UI 코루틴

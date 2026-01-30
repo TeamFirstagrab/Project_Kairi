@@ -88,6 +88,12 @@ public class ObjectController : MonoBehaviour
             count--;
             UpdateColor();
         }
+
+        if (playerDieObject && collision.gameObject.CompareTag(tagName.player))
+        {
+            GameManager.Instance.playerController.TakeDamage(1000000);
+            Debug.Log("³«»çÇÔ ¤µ¤¡");
+        }
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -119,12 +125,6 @@ public class ObjectController : MonoBehaviour
         {
             count--;
             UpdateColor();
-        }
-
-        if (playerDieObject && collision.gameObject.CompareTag(tagName.player))
-        {
-            GameManager.Instance.playerController.TakeDamage(1000000);
-            Debug.Log("³«»çÇÔ ¤µ¤¡");
         }
     }
     IEnumerator SpawnExplosionEffect(Vector2 position)
