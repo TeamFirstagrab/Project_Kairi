@@ -116,7 +116,7 @@ public class ObjectController : MonoBehaviour
             }
         }
 
-        if (explosionObject && collision.gameObject.CompareTag(tagName.enemy))
+        if (CompareTag(tagName.throwingObj) && explosionObject && collision.gameObject.CompareTag(tagName.enemy))
         {
             if (collision.gameObject.TryGetComponent<Enemy>(out var target))
                 Explode();
