@@ -510,7 +510,7 @@ public class GrapplingHook : MonoBehaviour
 		LayerMask mask = ~LayerMask.GetMask(tagName.player);                            // 레이케스트 플레이어 충돌 무시
 		RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance, mask);  // 자기 위치에서 dir 방향으로 광선 발사
 
-		if (isAttach)   // 훅 사용 중일 경우 선 비활성화
+		if (isAttach || isHookActive)   // 훅 사용 중일 경우 선 비활성화
 		{
 			visualizerLine.Stop();
 			return;
