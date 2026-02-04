@@ -5,4 +5,21 @@ using UnityEngine;
 /// </summary>
 public class GlobalUtil
 {
+	public void CheckGround(Transform transform, Collision2D collision, Rigidbody2D rigid)
+	{
+		bool isGrounded = false;
+
+		foreach (var contact in collision.contacts)     // ¹Ù´Ú Ã¼Å©
+		{
+			if (contact.normal.y > 0.7f &&
+				contact.point.y < transform.position.y)
+			{
+				isGrounded = true;
+				break;
+			}
+		}
+
+		if (isGrounded && rigid.linearVelocityY < 0f)       // y°ª º¸Á¤ (¹Ù´Ú ¶Õ¸² ¹æÁö)
+			rigid.linearVelocity = new Vector2(rigid.linearVelocity.x, 0f);
+	}
 }
