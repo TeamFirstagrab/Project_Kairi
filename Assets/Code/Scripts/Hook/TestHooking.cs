@@ -13,7 +13,7 @@ public class TestHooking : MonoBehaviour
     public float speed = 1f;            // 훅 발사 속도 (TODO: 스크립터블 오브젝트에 있는 speed로 사용하기)
 
     [Header("중력")]
-    public Vector2 gravityForce = new Vector2(0f, -2f);     // 로프 중력값
+    public Vector2 gravityForce = new Vector2(0f, -5f);     // 로프 중력값
     public float dampingFactor = 0.99f;     // 제동 계수 (과도한 흔들림 제어용)
 
     [Header("제약 조건")]
