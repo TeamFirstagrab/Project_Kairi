@@ -25,6 +25,8 @@ public class Enemy : MonoBehaviour, IDamageable
 
     public void TakeDamage(int attack)      // 데미지 입히기
     {
+        GameManager.Instance.cameraShake.ShakeForSeconds(0.1f); // 카메라 흔들기
+
         currStat.currentHP -= attack;
 
         if (currStat.currentHP <= 0)
