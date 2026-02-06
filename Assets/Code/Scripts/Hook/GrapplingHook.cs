@@ -49,7 +49,6 @@ public class GrapplingHook : MonoBehaviour
     public float boostDuration = 0.5f;
 
     private Vector2 mousedir;
-    private bool hasShakedOnAttach = false;
     private bool hasPlayedAttachSound = false;
     private bool isPlayedDraftSound = false;
     private float distance = 0f;                            // 표시선 길이
@@ -127,7 +126,6 @@ public class GrapplingHook : MonoBehaviour
 	{
 		if (Mouse.current.leftButton.wasPressedThisFrame && !isHookActive && !isAttach)
 		{
-			GameManager.Instance.cameraShake.ShakeForSeconds(0.1f); // 카메라 흔들기
 			GameManager.Instance.audioManager.HookShootSound(0.7f); // 갈고리 발사 효과음
 			hook.position = transform.position;
 			Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
@@ -176,11 +174,6 @@ public class GrapplingHook : MonoBehaviour
 			hasPlayedAttachSound = true;
 		}
 
-		if (!hasShakedOnAttach)
-		{
-			GameManager.Instance.cameraShake.ShakeForSeconds(0.1f);
-			hasShakedOnAttach = true;
-		}
 		HandleDetachInput();
 		HandleRopeDraft();
 	}
@@ -192,7 +185,6 @@ public class GrapplingHook : MonoBehaviour
 		isAttach = false;
 		isHookActive = false;
 		isLineMax = false;
-		hasShakedOnAttach = false;
 		hasPlayedAttachSound = false;
 
 		hook.GetComponent<Hooking>().joint2D.enabled = false;
@@ -309,11 +301,12 @@ public class GrapplingHook : MonoBehaviour
 
 	void HandleThrow() // 던지기 처리 분리
 	{
-		if (!isAttachElement) return;           // 적 또는 오브젝트 던지기
+		// 적 또는 오브젝트 던지기
+		if (!isAttachElement) return;
 
 		if (Mouse.current.rightButton.wasPressedThisFrame)
-		{
-			Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        {
+            Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
 			Vector2 dir = mouseWorld - (Vector2)transform.position;
 			ThrowElement(hookingList[0], dir);
 			line.enabled = true;

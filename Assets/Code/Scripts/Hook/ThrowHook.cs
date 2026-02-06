@@ -31,10 +31,10 @@ public class ThrowHook : MonoBehaviour
             if (!isHookActive)  // 훅이 활성화되지 않았을 경우
             {
                 Vector3 mouseScreen = Mouse.current.position.ReadValue();       // 스크린 좌표 구하기
-                mouseScreen.z = Mathf.Abs(mainCam.transform.position.z);    // z값 보정
-                Vector2 worldPos = mainCam.ScreenToWorldPoint(mouseScreen); // 월드 좌표
+                mouseScreen.z = Mathf.Abs(mainCam.transform.position.z);        // z값 보정
+                Vector2 worldPos = mainCam.ScreenToWorldPoint(mouseScreen);     // 월드 좌표
                 Vector2 dir = (worldPos - (Vector2)transform.position).normalized;              // 광선 방향
-                LayerMask mask = LayerMask.GetMask(tagName.ground);                        // 레이케스트 땅만 맞출 수 있도록 마스크 생성
+                LayerMask mask = LayerMask.GetMask(tagName.ground);                             // 레이케스트 땅만 맞출 수 있도록 마스크 생성
                 RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance, mask);  // 자기 위치에서 dir 방향으로 광선 발사
 
                 hook.GetComponent<TestHooking>().HookMoveAction();      // 훅 움직이는 액션
