@@ -10,6 +10,8 @@ public class DialogSystem : MonoBehaviour
     public GameObject talkPanel;
     [Header("대화 텍스트")]
     public TextMeshProUGUI talkText;
+    [Header("텍스트 가리기용 파티클")]
+    public ParticleSystem blackParticle;
 
     [Header("텍스트 웨이브")]
     public bool waveText = false;
@@ -29,6 +31,13 @@ public class DialogSystem : MonoBehaviour
     public float sizeUpMultiplier = 1.3f;
     List<bool> bigCharStates = new List<bool>();
     bool isBigMode = false;
+
+    // 숨김 문자 상태
+    List<bool> hiddenCharStates = new List<bool>();
+    bool isHiddenMode = false;
+
+    // 글자별 파티클 풀
+    List<ParticleSystem> hiddenParticles = new List<ParticleSystem>();
 
     [Header("| 0.1초 숨 고름, ++ 커짐, -- 원래대로")]
     [TextArea]
@@ -60,6 +69,7 @@ public class DialogSystem : MonoBehaviour
             HandleEnter();
         }
     }
+
     public void HandleEnter()
     {
         if (isTyping)
@@ -77,7 +87,11 @@ public class DialogSystem : MonoBehaviour
     {
         talkText.text = "";
         bigCharStates.Clear();
+        hiddenCharStates.Clear();
         isBigMode = false;
+        isHiddenMode = false;
+
+        ClearHiddenParticles();
 
         for (int i = 0; i < text.Length; i++)
         {
@@ -95,11 +109,21 @@ public class DialogSystem : MonoBehaviour
                 continue;
             }
 
+            if (text[i] == '*')
+            {
+                isHiddenMode = !isHiddenMode;
+                continue;
+            }
+
             char c = text[i];
             if (c == '|') continue;
 
             talkText.text += c;
             bigCharStates.Add(isBigMode);
+            hiddenCharStates.Add(isHiddenMode);
+
+            if (isHiddenMode)
+                CreateHiddenParticle();
         }
 
         isTyping = false;
@@ -115,6 +139,7 @@ public class DialogSystem : MonoBehaviour
             isAction = false;
             talkPanel.SetActive(false);
             StopAllCoroutines();
+            ClearHiddenParticles();
             return;
         }
 
@@ -135,8 +160,10 @@ public class DialogSystem : MonoBehaviour
         {
             StopAllCoroutines();
             talkPanel.SetActive(false);
+            ClearHiddenParticles();
         }
     }
+
     void StartDialog(int index)
     {
         if (typingCoroutine != null)
@@ -145,71 +172,22 @@ public class DialogSystem : MonoBehaviour
         typingCoroutine = StartCoroutine(TypeText(dialogList[index]));
     }
 
-    // 컷신 시작
-    public void StartCutscenePlayerDialog()
-    {
-        isAction = true;
-        talkPanel.SetActive(true);
-
-        StartDialog(cutscenePlayerIndex);
-    }
-
-    public void StartCutsceneNPCDialog()
-    {
-        isAction = true;
-        talkPanel.SetActive(true);
-
-        StartDialog(cutsceneNPCIndex);
-    }
-
-
-    // 컷신 다음 대사
-    public void NextCutscenePlayerDialog()
-    {
-        cutscenePlayerIndex++;
-        StartDialog(cutscenePlayerIndex);
-    }
-
-    public void NextCutsceneNPCDialog()
-    {
-        cutsceneNPCIndex++;
-        StartDialog(cutsceneNPCIndex);
-    }
-
-
-    // 컷신 종료
-    public void EndCutscenePlayerDialog()
-    {
-        cutscenePlayerIndex++;
-        EndCutsceneDialog();
-    }
-
-    public void EndCutsceneNPCDialog()
-    {
-        cutsceneNPCIndex++;
-        EndCutsceneDialog();
-    }
-    public void EndCutsceneDialog()
-    {
-        isAction = false;           // 대사 시스템 OFF
-        talkPanel.SetActive(false); // 말풍선 끄기
-        StopAllCoroutines();        // 타이핑 코루틴 종료
-    }
-
-
     IEnumerator TypeText(string text)
     {
         isTyping = true;
         talkText.text = "";
 
         bigCharStates.Clear();
+        hiddenCharStates.Clear();
         isBigMode = false;
+        isHiddenMode = false;
+
+        ClearHiddenParticles();
 
         StartCoroutine(AnimateText());
 
         for (int i = 0; i < text.Length; i++)
         {
-            // ++
             if (i + 1 < text.Length && text[i] == '+' && text[i + 1] == '+')
             {
                 isBigMode = true;
@@ -217,11 +195,16 @@ public class DialogSystem : MonoBehaviour
                 continue;
             }
 
-            // --
             if (i + 1 < text.Length && text[i] == '-' && text[i + 1] == '-')
             {
                 isBigMode = false;
                 i++;
+                continue;
+            }
+
+            if (text[i] == '*')
+            {
+                isHiddenMode = !isHiddenMode;
                 continue;
             }
 
@@ -235,6 +218,10 @@ public class DialogSystem : MonoBehaviour
 
             talkText.text += c;
             bigCharStates.Add(isBigMode);
+            hiddenCharStates.Add(isHiddenMode);
+
+            if (isHiddenMode)
+                CreateHiddenParticle();
 
             GameManager.Instance.audioManager.TextTypingSound(1f);
             yield return new WaitForSeconds(typingSpeed);
@@ -249,6 +236,8 @@ public class DialogSystem : MonoBehaviour
         {
             talkText.ForceMeshUpdate();
             TMP_TextInfo textInfo = talkText.textInfo;
+
+            int hiddenIndex = 0;
 
             for (int i = 0; i < textInfo.characterCount; i++)
             {
@@ -266,20 +255,15 @@ public class DialogSystem : MonoBehaviour
 
                 Vector3 offset = Vector3.zero;
 
-                // 웨이브
                 if (waveText)
-                {
                     offset.y += Mathf.Sin(Time.time * waveSpeed + i) * WaveAmount;
-                }
 
-                // 쉐이크
                 if (shakeText)
                 {
                     offset.x += (Mathf.PerlinNoise(Time.time * shakeSpeed, i) - 0.5f) * shakeAmount;
                     offset.y += (Mathf.PerlinNoise(i, Time.time * shakeSpeed) - 0.5f) * shakeAmount;
                 }
 
-                // 사이즈
                 float scale = 1f;
                 if (i < bigCharStates.Count && bigCharStates[i])
                     scale = sizeUpMultiplier;
@@ -291,18 +275,38 @@ public class DialogSystem : MonoBehaviour
                     pos += offset;
                     vertices[vertexIndex + v] = pos;
                 }
+
+                if (i < hiddenCharStates.Count && hiddenCharStates[i])
+                {
+                    hiddenParticles[hiddenIndex].transform.position =
+                        talkText.transform.TransformPoint(center);
+                    hiddenIndex++;
+                }
             }
 
             for (int i = 0; i < textInfo.meshInfo.Length; i++)
             {
                 textInfo.meshInfo[i].mesh.vertices =
                     textInfo.meshInfo[i].vertices;
-                talkText.UpdateGeometry(
-                    textInfo.meshInfo[i].mesh, i);
+                talkText.UpdateGeometry(textInfo.meshInfo[i].mesh, i);
             }
 
             yield return null;
         }
     }
 
+    void CreateHiddenParticle()
+    {
+        ParticleSystem p = Instantiate(blackParticle, talkText.transform);
+        p.Play();
+        hiddenParticles.Add(p);
+    }
+
+    void ClearHiddenParticles()
+    {
+        foreach (var p in hiddenParticles)
+            if (p != null) Destroy(p.gameObject);
+
+        hiddenParticles.Clear();
+    }
 }

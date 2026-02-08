@@ -22757,6 +22757,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogSystem
   talkPanel: {fileID: 515005634}
   talkText: {fileID: 339037456}
+  blackParticle: {fileID: 880439319}
   waveText: 0
   WaveAmount: 0.01
   waveSpeed: 15
@@ -22765,7 +22766,7 @@ MonoBehaviour:
   shakeSpeed: 20
   sizeUpMultiplier: 1.3
   dialogList:
-  - "++++\uC7A1 |\uD614 |\uB2E4 |."
+  - "++++*\uC7A1 |\uC554\uB2C8\uC554\uB2DD\u3147\uBC0D|||\uD614||| |\uB2E4||| |.*"
   typingSpeed: 0.05
   isAction: 0
   cutscenePlayerIndex: 0
@@ -28297,7 +28298,7 @@ GameObject:
   - component: {fileID: 880439319}
   - component: {fileID: 880439318}
   m_Layer: 0
-  m_Name: Particle System
+  m_Name: BlackParticle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28481,7 +28482,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 3
+      scalar: 5
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -28534,7 +28535,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 0
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -28652,7 +28653,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.4
+      scalar: 0.5
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -28705,7 +28706,7 @@ ParticleSystem:
     startSizeY:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.4
+      scalar: 0.5
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -29037,7 +29038,7 @@ ParticleSystem:
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 0.4, y: 0.2, z: 1}
+    m_Scale: {x: 0.5, y: 0.2, z: 1}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
