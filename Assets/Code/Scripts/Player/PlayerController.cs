@@ -125,9 +125,9 @@ public class PlayerController : MonoBehaviour, IDamageable
 		else
 		{
 			float x = inputVec.x * speed * Time.deltaTime;
-            transform.Translate(x, 0, 0);
+			transform.Translate(x, 0, 0);
 		}
-    }
+	}
 
     void HandleWalkSound()
     {

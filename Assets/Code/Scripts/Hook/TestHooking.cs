@@ -13,11 +13,11 @@ public class TestHooking : MonoBehaviour
     [HideInInspector] public float speed = 1f;		// 훅 발사 속도 (TODO: 스크립터블 오브젝트에 있는 speed로 사용하기)
 
 	/* 제약 조건 */
-    private int constraintRuns = 200;				// 실행 횟수
+    public int constraintRuns = 500;				// 실행 횟수
 
 	/* 훅 중력 */
-	private Vector2 gravityForce = new Vector2(0f, -50f);	// 로프 중력값
-	private float dampingFactor = 0.95f;            // 제동 계수 (과도한 흔들림 제어용)
+	public Vector2 gravityForce = new Vector2(0f, -50f);	// 로프 중력값
+	public float dampingFactor = 0.99f;            // 제동 계수 (과도한 흔들림 제어용)
 
 	/* 줄 */
 	private bool isLineLenMax;	// 줄 길이 최대 여부
