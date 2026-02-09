@@ -10,20 +10,28 @@ public class TestGrapplingHook : MonoBehaviour
 {
 	[Header("그래플링 훅 갈고리 프리펩")]
 	public GameObject hook;
-
 	[Header("임시 표시선 visualizerLine 프리펩")]
 	public GameObject visualizerLine;
+	[Header("오프셋 (잡힌 오브젝트 이동 보정값)")]
+	public Vector3 followOffset = new Vector3(1f, 0f, 0f);  // 기본값: (1, 0, 0)
 
+	/* 카메라 */
 	private Camera mainCam;     // 메인 카메라
 
 	/* 훅 정보 */
-	[HideInInspector] public bool isAttach;		// 훅 사용 여부
+	[HideInInspector] public bool isAttach;     // 훅 사용 여부
 	[HideInInspector] public bool isGrab;       // 훅 잡음 여부
-	private GameObject curHook;     // 현재 훅
-	private float distance;             // 훅 길이
+	private GameObject curHook;                 // 현재 훅
+	private float distance;                     // 훅 길이
+	private List<Transform> hookingList = new List<Transform>();    // 그래플링 훅으로 잡은 요소 리스트
+	private bool isLineMax;                     // 훅 길이 최대 여부
 
 	/* 임시 표시선 */
 	private LineRendererAtoB lineAtoB;  // 임시 표시선 관련 데이터
+
+	/* 사운드 */
+	private bool hasPlayedAttachSound = false;
+	private bool isPlayedDraftSound = false;
 
 	private void Start()
 	{
@@ -33,67 +41,93 @@ public class TestGrapplingHook : MonoBehaviour
 
 		/* 임시 표시선 */
 		lineAtoB = Instantiate(visualizerLine).GetComponent<LineRendererAtoB>();    // 인스턴스화 시킨 오브젝트의 스크립트 컴포넌트 저장하기
-		distance = GameManager.Instance.playerStatsRuntime.hookDistance;			// 표시선 길이 불러오기
-		
+		distance = GameManager.Instance.playerStatsRuntime.hookDistance;            // 표시선 길이 불러오기
+
 		/* 카메라 */
-		mainCam = Camera.main;		// 메인 카메라 정보 가져오기
+		mainCam = Camera.main;      // 메인 카메라 정보 가져오기
 	}
 
 	private void Update()
 	{
 		CursorPathMarking();    // 임시 표시선 그리기
-		ActiveHook();			// 훅 사용
+		ActiveHook();           // 훅 사용
+	}
+
+	private void LateUpdate()
+	{
+		MoveElementPos();       // 잡힌 요소의 좌표 이동
 	}
 
 	// 훅 사용
 	private void ActiveHook()
 	{
-		// 마우스 좌클릭 시
+		Vector3 mouseScreen = Mouse.current.position.ReadValue();               // 스크린 좌표 구하기
+		mouseScreen.z = Mathf.Abs(mainCam.transform.position.z);                // z값 보정
+		Vector2 worldPos = mainCam.ScreenToWorldPoint(mouseScreen);             // 월드 좌표
+		Vector2 dir = (worldPos - (Vector2)transform.position).normalized;      // 광선 방향
+
+		// 좌클릭 시
 		if (Mouse.current.leftButton.wasPressedThisFrame)
 		{
 			if (!isAttach)  // 훅이 활성화되지 않았을 경우
 			{
-				Vector3 mouseScreen = Mouse.current.position.ReadValue();       // 스크린 좌표 구하기
-				mouseScreen.z = Mathf.Abs(mainCam.transform.position.z);        // z값 보정
-				Vector2 worldPos = mainCam.ScreenToWorldPoint(mouseScreen);     // 월드 좌표
-				Vector2 dir = (worldPos - (Vector2)transform.position).normalized;              // 광선 방향
-				LayerMask mask = LayerMask.GetMask(tagName.ground);                             // 레이케스트 땅만 맞출 수 있도록 마스크 생성
+				LayerMask mask = ~LayerMask.GetMask(tagName.player);                             // 레이케스트 땅만 맞출 수 있도록 마스크 생성
 				RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance, mask);  // 자기 위치에서 dir 방향으로 광선 발사
 
 				hook.GetComponent<TestHooking>().HookMoveAction();      // 훅 움직이는 액션
 
 				if (hit)
 				{
-					TestHooking hooking;
-					Vector2 destiny = hit.point;    // Raycast로 쐈을 때 충돌된 위치
-					curHook = Instantiate(hook, transform.position, Quaternion.identity);   // 플레이어 위치에 훅 생성
+					// 부딪힌 요소가 적 or 던져지는 적 or 오브젝트 or 던져지는 오브젝트일 경우
+					if (!isGrab && (hit.collider.CompareTag(tagName.enemy) || hit.collider.CompareTag(tagName.throwingEnemy)
+						|| hit.collider.CompareTag(tagName.obj) || hit.collider.CompareTag(tagName.throwingObj)))
+					{
+						AttachElement(hit.transform);   // 요소 잡기
+						isGrab = true;
+					}
+					// 땅과 부딪혔을 때
+					else if (hit.collider.CompareTag(tagName.ground))
+					{
+						TestHooking hooking;
+						Vector2 destiny = hit.point;    // Raycast로 쐈을 때 충돌된 위치
+						curHook = Instantiate(hook, transform.position, Quaternion.identity);   // 플레이어 위치에 훅 생성
 
-					hooking = curHook.GetComponent<TestHooking>();
-					hooking.destiny = destiny;
+						hooking = curHook.GetComponent<TestHooking>();
+						hooking.destiny = destiny;
+						curHook.SetActive(true);
 
-					// 점 사이 거리를 고려하여 거리만큼의 점 갯수 구하기
-					float len = Vector2.Distance(transform.position, destiny);
-					hooking.lineLen = len;
+						// 점 사이 거리를 고려하여 거리만큼의 점 갯수 구하기
+						float len = Vector2.Distance(transform.position, destiny);
+						hooking.lineLen = len;
 
-					isAttach = true;    // 훅 활성 여부 변경
-					
+						isAttach = true;    // 훅 활성 여부 변경
+					}
+
 				}
 			}
 		}
-		// 마우스를 뗐을 때
-		else if (Mouse.current.leftButton.wasReleasedThisFrame)
+		// 좌클릭 해제시
+		else if (isAttach && Mouse.current.leftButton.wasReleasedThisFrame)
 		{
-			if (isAttach)
+			if (curHook != null)
 			{
+				curHook.SetActive(false);
 				Destroy(curHook);
-
-				isAttach = false;
 			}
+
+			isAttach = false;
+			isLineMax = false;
+		}
+		// 요소를 잡고 있고, 마우스를 우클릭 했을 경우
+		else if (isGrab && Mouse.current.rightButton.wasPressedThisFrame)
+		{
+			// 적 던지기
+			ThrowElement(hookingList[0], dir);
+			isGrab = false;
 		}
 	}
 
-	// 임시 표시선 그리기
-	public void CursorPathMarking()
+	public void CursorPathMarking()     // 임시 표시선 그리기
 	{
 		if (Mouse.current == null) return;
 		if (GameManager.Instance.dialogSystem && GameManager.Instance.dialogSystem.isAction) return;    // 상호작용 중일 경우 표시선 그리지 않음
@@ -105,7 +139,7 @@ public class TestGrapplingHook : MonoBehaviour
 		LayerMask mask = ~LayerMask.GetMask(tagName.player);                            // 레이케스트 플레이어 충돌 무시
 		RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance, mask);  // 자기 위치에서 dir 방향으로 광선 발사
 
-		if (isAttach || isGrab)   // 훅 사용 중일 경우 선 비활성화
+		if (isAttach)   // 훅 사용 중일 경우 선 비활성화
 		{
 			lineAtoB.Stop();
 			return;
@@ -132,5 +166,103 @@ public class TestGrapplingHook : MonoBehaviour
 		}
 		else
 			lineAtoB.Stop();
+	}
+
+	void MoveElementPos()   // 적 및 오브젝트 위치 이동하기
+	{
+		if (!isGrab) return;
+		MovePos();
+	}
+
+	public void AttachElement(Transform element)    // 잡기
+	{
+		if (hookingList.Contains(element) || isGrab) return;
+
+		LongRangeEnemy enemyAttack = element.GetComponent<LongRangeEnemy>();
+		if (enemyAttack != null)
+			enemyAttack.isGrabbed = true;
+
+		DroneEnemy droneEnemy = element.GetComponent<DroneEnemy>();
+		if (droneEnemy != null)
+			droneEnemy.isGrabbed = true;
+
+		EnemyController enemyController = element.GetComponent<EnemyController>();
+		if (enemyController != null)
+			enemyController.isGrounded = false;
+
+		hookingList.Add(element);   // 리스트에 추가하기
+		Collider2D elementCol = element.GetComponent<Collider2D>();
+		Collider2D playerCol = GetComponent<Collider2D>();
+		Rigidbody2D rb = element.GetComponent<Rigidbody2D>();
+
+		if (elementCol != null && playerCol != null)            // 플레이어가 자기 자신을 잡았을 때 -> 충돌 무시
+			Physics2D.IgnoreCollision(elementCol, playerCol, true);
+
+		if (rb != null)                                         // Rigidbody가 있으면 Kinematic으로
+			rb.bodyType = RigidbodyType2D.Kinematic;
+
+		element.SetParent(transform);   // 플레이어 자식으로
+
+		isLineMax = false;
+		isGrab = true;
+	}
+
+	public void ThrowElement(Transform element, Vector2 throwDir)   // 던지기
+	{
+		if (!hookingList.Contains(element)) return;
+		LongRangeEnemy longRangeEnemy = element.GetComponent<LongRangeEnemy>();
+		if (longRangeEnemy != null)
+		{
+			longRangeEnemy.isGrabbed = false;
+			longRangeEnemy.ResetAttackState();
+		}
+
+		DroneEnemy droneEnemy = element.GetComponent<DroneEnemy>();
+		if (droneEnemy != null)
+		{
+			droneEnemy.isGrabbed = false;
+			droneEnemy.ResetAttackState();
+		}
+		GameManager.Instance.audioManager.HookThrowEnemySound(1f);  // 적 던지는 효과음
+		hookingList.Remove(element);
+		element.SetParent(null);    // 부모 해제
+
+		if (element.gameObject.CompareTag(tagName.enemy))           // 태그가 적일 때
+			element.gameObject.tag = tagName.throwingEnemy;         // 던져지는 적 태그로 변경
+		else if (element.gameObject.CompareTag(tagName.obj))        // 태그가 오브젝트일 때
+			element.gameObject.tag = tagName.throwingObj;           // 던져지는 오브젝트 태그로 변경
+
+		Collider2D enemyCol = element.GetComponent<Collider2D>();
+		Collider2D playerCol = GetComponent<Collider2D>();
+		Rigidbody2D rb = element.GetComponent<Rigidbody2D>();
+
+		if (rb != null)
+		{
+			rb.bodyType = RigidbodyType2D.Dynamic;
+			rb.linearVelocity = Vector2.zero;
+			rb.AddForce(throwDir.normalized * GameManager.Instance.playerStatsRuntime.hookThrowForce, ForceMode2D.Impulse);
+		}
+
+		if (hookingList.Count == 0)
+		{
+			isGrab = false;
+			hasPlayedAttachSound = false;
+		}
+	}
+
+	public void MovePos()   // 위치 이동하기(그래플링 훅으로 잡았을 경우만)
+	{
+		if (!isGrab) return;
+
+		SpriteRenderer playerSprite = GetComponent<SpriteRenderer>();   // 훅에 있는 플레이어 SpriteRenderer 가져오기
+
+		for (int i = 0; i < hookingList.Count; i++)
+		{
+			if (hookingList[i] == null) continue;
+
+			Vector3 offset = followOffset;
+			offset.x = playerSprite.flipX ? -Mathf.Abs(followOffset.x) : Mathf.Abs(followOffset.x); // followOffset을 기준으로 x를 왼쪽/오른쪽 방향 맞춤
+			hookingList[i].localPosition = offset; // 부모 transform 기준 localPosition
+		}
 	}
 }

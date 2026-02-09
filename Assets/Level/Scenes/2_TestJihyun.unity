@@ -13032,7 +13032,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &604865950
 Transform:
   m_ObjectHideFlags: 0
@@ -14683,6 +14683,37 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!1 &990842242
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 990842243}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &990842243
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 990842242}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -93.90225, y: 18.57709, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1000633278
 GameObject:
   m_ObjectHideFlags: 0
@@ -15943,6 +15974,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TestGrapplingHook
   hook: {fileID: 313841730352807346, guid: 03fc14595bba65b4f835be3b07a73c7d, type: 3}
   visualizerLine: {fileID: 4714670670714101203, guid: 41f038095ff068f41a0fb08061574cbe, type: 3}
+  followOffset: {x: 1, y: 0, z: 0}
   isAttach: 0
   isGrab: 0
 --- !u!1 &1298111043
@@ -15967,7 +15999,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1298111044
 Transform:
   m_ObjectHideFlags: 0
@@ -17762,3 +17794,4 @@ SceneRoots:
   - {fileID: 815410398}
   - {fileID: 1562949482}
   - {fileID: 1968028554}
+  - {fileID: 990842243}
