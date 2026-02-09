@@ -144,9 +144,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TestHooking
   destiny: {x: 0, y: 0}
   speed: 1
-  gravityForce: {x: 0, y: -80}
-  dampingFactor: 0.85
-  constraintRuns: 500
+  constraintRuns: 100
+  gravityForce: {x: 0, y: -50}
+  dampingFactor: 0.9
   player: {fileID: 0}
   lastNode: {fileID: 0}
   line: {fileID: 0}

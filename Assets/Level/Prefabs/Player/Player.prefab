@@ -581,9 +581,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingLayerID: -1977821675
+  m_SortingLayer: 2
+  m_SortingOrder: 100
   m_MaskInteraction: 0
   m_Sprite: {fileID: 978942612559604503, guid: e1604298a7d666d429a31d1fc386a1af, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -690,16 +690,9 @@ MonoBehaviour:
   tvGlobalVolume: {fileID: 0}
   damagedCanvas: {fileID: 0}
   blackCanvas: {fileID: 0}
-  slowGaugeSlider: {fileID: 0}
-  slowFactor: 0
-  slowMaxGauge: 0
-  slowGauge: 0
-  slowDecreaseRate: 0
-  slowRecoverRate: 0
   maxTime: 0.3
   isGrounded: 0
   hasCollided: 0
-  isSlow: 0
   walkSoundInterval: 0.7
   isWalking: 0
   inputVec: {x: 0, y: 0}
@@ -797,6 +790,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogSystem
   talkPanel: {fileID: 8576670862478012672}
   talkText: {fileID: 723313586739070392}
+  blackParticle: {fileID: 0}
   waveText: 0
   WaveAmount: 0.01
   waveSpeed: 15

@@ -49,48 +49,6 @@ public class TestGrapplingHook : MonoBehaviour
 		ActiveHook();			// 훅 사용
 	}
 
-	// 임시 표시선 그리기
-	public void CursorPathMarking()
-	{
-		if (Mouse.current == null) return;
-		if (GameManager.Instance.dialogSystem && GameManager.Instance.dialogSystem.isAction) return;    // 상호작용 중일 경우 표시선 그리지 않음
-
-		Vector3 mouseScreen = Mouse.current.position.ReadValue();                       // 스크린 좌표 구하기
-		mouseScreen.z = Mathf.Abs(mainCam.transform.position.z);                        // z값 보정
-		Vector2 worldPos = mainCam.ScreenToWorldPoint(mouseScreen);                     // 월드 좌표
-		Vector2 dir = (worldPos - (Vector2)transform.position).normalized;              // 광선 방향
-		LayerMask mask = ~LayerMask.GetMask(tagName.player);                            // 레이케스트 플레이어 충돌 무시
-		RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance, mask);  // 자기 위치에서 dir 방향으로 광선 발사
-
-		if (isAttach || isGrab)   // 훅 사용 중일 경우 선 비활성화
-		{
-			lineAtoB.Stop();
-			return;
-		}
-
-		if (hit)        // 광선에 부딪히는 오브젝트가 있으면 선 활성화
-		{
-			if (hit.collider.CompareTag(tagName.npc))   // 부딪힌 요소가 NPC일 경우 선 비활성화
-			{
-				lineAtoB.Stop();
-				return;
-			}
-
-			// 부딪힌 요소에 따라 선 색상 변경
-			// 뭔가를 들고 있을 때 오브젝트나 몬스터가 부딪혔을 경우
-			if (isGrab && (hit.collider.CompareTag(tagName.enemy) || hit.collider.CompareTag(tagName.obj)))
-				lineAtoB.SetLineColor(new Color(1f, 0.2f, 0.2f));
-			else if (hit.collider.CompareTag(tagName.obj))
-				lineAtoB.SetLineColor(new Color(0.49f, 0.85f, 0.45f));
-			else
-				lineAtoB.SetLineColor(new Color(0.18f, 0.76f, 1f));
-
-			lineAtoB.Play(transform.position, hit.point);
-		}
-		else
-			lineAtoB.Stop();
-	}
-
 	// 훅 사용
 	private void ActiveHook()
 	{
@@ -135,5 +93,47 @@ public class TestGrapplingHook : MonoBehaviour
 				isAttach = false;
 			}
 		}
+	}
+
+	// 임시 표시선 그리기
+	public void CursorPathMarking()
+	{
+		if (Mouse.current == null) return;
+		if (GameManager.Instance.dialogSystem && GameManager.Instance.dialogSystem.isAction) return;    // 상호작용 중일 경우 표시선 그리지 않음
+
+		Vector3 mouseScreen = Mouse.current.position.ReadValue();                       // 스크린 좌표 구하기
+		mouseScreen.z = Mathf.Abs(mainCam.transform.position.z);                        // z값 보정
+		Vector2 worldPos = mainCam.ScreenToWorldPoint(mouseScreen);                     // 월드 좌표
+		Vector2 dir = (worldPos - (Vector2)transform.position).normalized;              // 광선 방향
+		LayerMask mask = ~LayerMask.GetMask(tagName.player);                            // 레이케스트 플레이어 충돌 무시
+		RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance, mask);  // 자기 위치에서 dir 방향으로 광선 발사
+
+		if (isAttach || isGrab)   // 훅 사용 중일 경우 선 비활성화
+		{
+			lineAtoB.Stop();
+			return;
+		}
+
+		if (hit)        // 광선에 부딪히는 오브젝트가 있으면 선 활성화
+		{
+			if (hit.collider.CompareTag(tagName.npc))   // 부딪힌 요소가 NPC일 경우 선 비활성화
+			{
+				lineAtoB.Stop();
+				return;
+			}
+
+			// 부딪힌 요소에 따라 선 색상 변경
+			// 뭔가를 들고 있을 때 오브젝트나 몬스터가 부딪혔을 경우
+			if (isGrab && (hit.collider.CompareTag(tagName.enemy) || hit.collider.CompareTag(tagName.obj)))
+				lineAtoB.SetLineColor(new Color(1f, 0.2f, 0.2f));
+			else if (hit.collider.CompareTag(tagName.obj))
+				lineAtoB.SetLineColor(new Color(0.49f, 0.85f, 0.45f));
+			else
+				lineAtoB.SetLineColor(new Color(0.18f, 0.76f, 1f));
+
+			lineAtoB.Play(transform.position, hit.point);
+		}
+		else
+			lineAtoB.Stop();
 	}
 }

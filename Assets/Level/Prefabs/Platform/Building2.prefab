@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8249806126120160095}
   - component: {fileID: 3543841896320345216}
   m_Layer: 0
-  m_Name: TempBuilding2
+  m_Name: Building2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -82,12 +82,12 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 62817575157890854, guid: 2e259366b8a77054b849165316dd3f25, type: 3}
+  m_Sprite: {fileID: -2301515492470509865, guid: 1a04e5dffcb994548895d26e193f57c6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 10.4375, y: 6.125}
+  m_Size: {x: 10.375, y: 6.0625}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -131,7 +131,7 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 10.375, y: 6.0625}
-    newSize: {x: 10.4375, y: 6.125}
+    newSize: {x: 10.375, y: 6.0625}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
