@@ -1,4 +1,3 @@
-using DG.Tweening;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,21 +8,14 @@ public class ChangeScenes : MonoBehaviour
 
     public float fadeDuration = 0.8f;
 
-    // private bool isTransitioning = false;
+	// private bool isTransitioning = false;
 
-    private void OnTriggerEnter2D(Collider2D collision)
+	private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
             Debug.Log("Player detected!");
-            LoadNextScene();
+            new SceneChanger().LoadNextScene();
         }
     }
-
-    void LoadNextScene()
-    {
-        int nextIndex = SceneManager.GetActiveScene().buildIndex + 1;
-        SceneManager.LoadScene(nextIndex);
-    }
-
 }

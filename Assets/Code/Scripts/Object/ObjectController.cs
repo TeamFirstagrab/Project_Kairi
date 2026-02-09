@@ -1,11 +1,185 @@
 using UnityEngine;
+using System.Collections;
+using tagName = Globals.TagName;    // 태그
+using static Globals;
 
 public class ObjectController : MonoBehaviour
 {
-	GrabbableObject obj;
+    [Header("터지는 오브젝트")]
+    public bool explosionObject;
+    [Header("폭발 이펙트")]
+    public GameObject explosionEffectPrefab;
+    [Header("폭발 범위")]
+    public float explosionRadiaus = 2f;
+    [Header("부서지는 오브젝트")]
+    public bool crackObject = false;
+    [Header("최대 내구도")]
+    public int maxCount = 3;
+    public int count;          // 현재 내구도
+    [Header("닿으면 죽는 오브젝트")]
+    public bool playerDieObject = false;
+    public bool isGrounded;
+    public bool hasCollided = false;
+    Rigidbody2D rigid;
+    SpriteRenderer sprite;
 
-	private void Awake()
+    private void Awake()
 	{
-		obj = GetComponent<GrabbableObject>();
-	}
+        rigid = GetComponent<Rigidbody2D>();
+        sprite = GetComponent<SpriteRenderer>();
+        count = maxCount;
+        UpdateColor();
+    }
+
+    void Start()
+    {
+        isGrounded = true;
+    }
+    void Update()
+    {
+        if (isGrounded && rigid.linearVelocity == Vector2.zero)
+            gameObject.tag = tagName.obj;
+    }
+
+    public void CheckGround(Collision2D collision)
+    {
+        foreach (var contact in collision.contacts)     // 바닥 체크
+        {
+            if (contact.normal.y > 0.7f &&
+                contact.point.y < transform.position.y)
+            {
+                isGrounded = true;
+                break;
+            }
+        }
+
+        // 충돌 체크
+        hasCollided = true;
+
+        // y값 보정 (바닥 뚫림 방지)
+        if (isGrounded && rigid.linearVelocityY < 0f)
+            rigid.linearVelocity = new Vector2(rigid.linearVelocity.x, 0f);
+    }
+
+    void UpdateColor()
+    {
+        float ratio = (float)count / maxCount;
+
+        if (ratio > 0.66f)          // 2/3 이상
+            sprite.color = Color.white;   // 정상
+        else if (ratio > 0.33f)     // 1/3 ~ 2/3
+            sprite.color = Color.yellow;
+        else if (ratio > 0f)        // 0 ~ 1/3
+            sprite.color = Color.red;
+        else                        // 파괴
+        {
+            if (explosionObject)
+                Explode();
+            else
+                Destroy(gameObject);
+        }
+    }
+    private void OnDrawGizmosSelected()
+    {
+        if (explosionObject)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, explosionRadiaus); // 반경 2
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (crackObject && collision.CompareTag(tagName.bullet))
+        {
+            count--;
+            UpdateColor();
+        }
+
+        if (playerDieObject && collision.gameObject.CompareTag(tagName.player))
+        {
+            GameManager.Instance.playerController.TakeDamage(1000000);
+            Debug.Log("낙사함 ㅅㄱ");
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        CheckGround(collision);     // 바닥 체크
+
+        if (gameObject.CompareTag(tagName.throwingObj) && collision.gameObject.CompareTag(tagName.enemy))
+        {
+            if (collision.gameObject.TryGetComponent<Enemy>(out var target))
+            {
+                // 첫 번째 접촉점 기준
+                ContactPoint2D contact = collision.contacts[0];
+
+                // normal은 "맞은 대상 기준으로 바깥 방향"
+                Vector2 hitDir = -contact.normal;
+                target.SetHitDirection(hitDir);
+                target.TakeDamage(1);       // 닿은 적에게 데미지 주기
+            }
+        }
+
+        if (CompareTag(tagName.throwingObj) && explosionObject && collision.gameObject.CompareTag(tagName.enemy))
+        {
+            if (collision.gameObject.TryGetComponent<Enemy>(out var target))
+            {
+                // 첫 번째 접촉점 기준
+                ContactPoint2D contact = collision.contacts[0];
+
+                // normal은 "맞은 대상 기준으로 바깥 방향"
+                Vector2 hitDir = -contact.normal;
+                target.SetHitDirection(hitDir);
+                Explode();
+            }
+        }
+
+        if (crackObject && collision.gameObject.CompareTag(tagName.throwingObj) || collision.gameObject.CompareTag(tagName.throwingEnemy))
+        {
+            count--;
+            UpdateColor();
+        }
+    }
+
+    public void Explode()
+    {
+        GameManager.Instance.audioManager.ObjectExplosionSound(1f);
+        GameManager.Instance.cameraShake.ShakeForSeconds(1f);
+        Vector2 explosionPos = transform.position;
+        Collider2D[] hits = Physics2D.OverlapCircleAll(explosionPos, explosionRadiaus);
+
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag(tagName.enemy))
+            {
+                if (hit.TryGetComponent<Enemy>(out var target))
+                {
+                    Vector2 hitDir = (target.transform.position - transform.position).normalized;
+                    target.SetHitDirection(hitDir);
+                    target.TakeDamage(1);
+                }
+            }
+        }
+        StartCoroutine(SpawnExplosionEffect(explosionPos));
+        Destroy(gameObject);
+    }
+    IEnumerator SpawnExplosionEffect(Vector2 position)
+    {
+        GameObject effect = Instantiate(explosionEffectPrefab, position, Quaternion.identity);
+        yield return new WaitForSeconds(1.07f);
+        Destroy(effect);
+    }
+
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        CheckGround(collision);     // 바닥 체크
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag(tagName.ground))
+            isGrounded = false;
+    }
+
 }
