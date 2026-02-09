@@ -20,7 +20,6 @@ public class GameManager : MonoSingleton<GameManager> // ½Ì±ÛÅæ »ç¿ë
     [Header("ÄÁÆ®·Ñ·¯")]
     public PlayerController playerController;
     public PlayerInteraction playerInteraction;
-    public GrapplingHook grapplingHook;
 
     [Header("½ºÅÈ")]
     public PlayerStats playerStats;
