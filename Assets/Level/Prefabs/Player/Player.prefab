@@ -508,8 +508,8 @@ GameObject:
   - component: {fileID: 8725987195893682704}
   - component: {fileID: 6255624013362345816}
   - component: {fileID: 4756874103759277193}
-  - component: {fileID: 1031755658764454315}
   - component: {fileID: 4829653216477449006}
+  - component: {fileID: 3291911846861460203}
   - component: {fileID: 6149842786633117584}
   m_Layer: 6
   m_Name: Player
@@ -695,37 +695,6 @@ MonoBehaviour:
   walkSoundInterval: 0.7
   isWalking: 0
   inputVec: {x: 0, y: 0}
---- !u!114 &1031755658764454315
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7270546194825118783}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96080ce099ea71e4088789d1539497b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Hook
-  mainCam: {fileID: 0}
-  globalVolume: {fileID: 0}
-  line: {fileID: 0}
-  visualizerLine: {fileID: 4714670670714101203, guid: 41f038095ff068f41a0fb08061574cbe, type: 3}
-  hook: {fileID: 2782950733400507741, guid: 03fc14595bba65b4f835be3b07a73c7d, type: 3}
-  isHookActive: 0
-  isLineMax: 0
-  isAttach: 0
-  isAttachElement: 0
-  slowFactor: 0.5
-  slowLength: 2
-  followOffset: {x: 1, y: 0, z: 0}
-  swingGauge: {fileID: 7817489640410267700}
-  maxTurns: 1
-  decreaseSpeed: 400
-  increaseMultiplier: 1
-  turnMinDelta: 0.3
-  boostMultiplier: 1.5
-  boostDuration: 0.5
 --- !u!114 &4829653216477449006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -738,6 +707,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16d334fe44497ba40ae018936610b47d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteraction
+--- !u!114 &3291911846861460203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7270546194825118783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65550b7c13a56b94dbb7bcd81963efb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TestGrapplingHook
+  hook: {fileID: 313841730352807346, guid: 03fc14595bba65b4f835be3b07a73c7d, type: 3}
+  visualizerLine: {fileID: 4714670670714101203, guid: 41f038095ff068f41a0fb08061574cbe, type: 3}
+  followOffset: {x: 1, y: 0, z: 0}
+  isAttach: 0
+  isGrab: 0
 --- !u!70 &6149842786633117584
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

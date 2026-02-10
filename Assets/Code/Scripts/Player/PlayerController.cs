@@ -37,7 +37,6 @@ public class PlayerController : MonoBehaviour, IDamageable
     public Vector2 inputVec;
     Rigidbody2D rigid;
     SpriteRenderer sprite;
-    GrapplingHook grappling;
     PlayerInteraction interaction;  // 상호작용
     Animator animator;              // 애니메이션
 
@@ -51,7 +50,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 		sprite = GetComponent<SpriteRenderer>();
 		animator = GetComponent<Animator>();
         interaction = GameManager.Instance.playerInteraction;
-		grappling = GetComponent<GrapplingHook>();
 
 		// TODO: Test
 		testHook = GetComponent<TestGrapplingHook>();
