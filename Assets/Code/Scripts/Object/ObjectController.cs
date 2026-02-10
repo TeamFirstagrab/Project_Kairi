@@ -22,6 +22,8 @@ public class ObjectController : MonoBehaviour
     public bool hasCollided = false;
     Rigidbody2D rigid;
     SpriteRenderer sprite;
+    ObjectSpawner ownerSpawner;
+
 
     private void Awake()
 	{
@@ -39,6 +41,14 @@ public class ObjectController : MonoBehaviour
     {
         if (isGrounded && rigid.linearVelocity == Vector2.zero)
             gameObject.tag = tagName.obj;
+    }
+    public void Init(ObjectSpawner spawner)
+    {
+        ownerSpawner = spawner;
+
+        // 재사용 풀링 대비 초기화
+        count = maxCount;
+        UpdateCrackSprite();
     }
 
     public void CheckGround(Collision2D collision)
