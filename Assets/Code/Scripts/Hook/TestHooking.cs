@@ -17,7 +17,7 @@ public class TestHooking : MonoBehaviour
 
 	/* 훅 중력 */
 	public Vector2 gravityForce = new Vector2(0f, -50f);	// 로프 중력값
-	public float dampingFactor = 0.99f;            // 제동 계수 (과도한 흔들림 제어용)
+	public float dampingFactor = 0.95f;            // 제동 계수 (과도한 흔들림 제어용)
 
 	/* 줄 */
 	private bool isLineLenMax;	// 줄 길이 최대 여부

@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 
 using tagName = Globals.TagName;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 public class TestGrapplingHook : MonoBehaviour
 {
@@ -26,8 +27,21 @@ public class TestGrapplingHook : MonoBehaviour
 	private bool isLineMax;                     // 훅 길이 최대 여부
 	private List<Transform> hookingList = new List<Transform>();    // 그래플링 훅으로 잡은 요소 리스트
 
+	/* 회전 게이지 */
+	[Header("회전 중이지 않을 때 게이지 감소 속도")]
+	public float decreaseSpeed = 400f;
+	[Header("저장가능한 최대 회전 수(에너지 제한)")]
+	public int maxTurns = 1;
+	[Header("회전할 때 회전량 증가 배율")]
+	public float increaseMultiplier = 1.0f;
+	[Header("회전으로 인정할 최소 각도 변화")]
+	public float turnMinDelta = 0.3f;
+	public Slider swingGauge;					// 회전 게이지 UI
 	private float accumulatedAngle = 0f;        // 누적 회전량(게이지 수치)
 	private float maxAngle;                     // maxTurns 회전 시 최대 각도(= 360 * maxTurns)
+	private float previousAngle;				// 이전 프레임의 각도
+	private bool angleInitialized = false;      // 첫 프레임 각도 초기화 여부
+	private int storedDirection = 0;			// 저장된 회전 방향(1=시계, -1=반시계, 0=없음)
 
 	/* 임시 표시선 */
 	private LineRendererAtoB lineAtoB;  // 임시 표시선 관련 데이터
@@ -57,9 +71,13 @@ public class TestGrapplingHook : MonoBehaviour
 
 	private void Start()
 	{
-		/* 훅 정보 */
+		/* 훅 */
 		isAttach = false;
 		isGrab = false;
+		maxAngle = maxTurns * 360f;
+
+		/* 회전 게이지 */
+		swingGauge = GetComponent<Slider>();
 
 		/* 임시 표시선 */
 		lineAtoB = Instantiate(visualizerLine).GetComponent<LineRendererAtoB>();    // 인스턴스화 시킨 오브젝트의 스크립트 컴포넌트 저장하기
@@ -73,6 +91,7 @@ public class TestGrapplingHook : MonoBehaviour
 	{
 		CursorPathMarking();    // 임시 표시선 그리기
 		ActiveHook();           // 훅 사용
+		HandleSwingGauge();		// 회전 게이지 표시
 	}
 
 	private void LateUpdate()
@@ -98,7 +117,7 @@ public class TestGrapplingHook : MonoBehaviour
 				// 효과음 재생
 				if (!hasPlayedAttachSound)      // 갈고리 or 적에 처음 붙었을 때
 				{
-					GameManager.Instance.audioManager.HookAttachSound(1f);
+					GameManager.Instance.audioManager.HookShootSound(0.7f); // 갈고리 발사 효과음
 					hasPlayedAttachSound = true;
 				}
 
@@ -129,7 +148,7 @@ public class TestGrapplingHook : MonoBehaviour
 			}
 		}
 		// 좌클릭 해제시
-		else if (isAttach && Mouse.current.leftButton.wasReleasedThisFrame)
+		else if (Mouse.current.leftButton.wasReleasedThisFrame)
 		{
 			if (curHook != null)
 			{
@@ -137,11 +156,6 @@ public class TestGrapplingHook : MonoBehaviour
 				Destroy(curHook);
 			}
 
-			// 슬로우모션
-			if (slowCoroutine != null)
-				StopCoroutine(slowCoroutine);
-
-			slowCoroutine = StartCoroutine(SlowRoutine());
 			Boost(accumulatedAngle / maxAngle);        // 0~1 만큼 부스트
 
 			isAttach = false;
@@ -295,6 +309,88 @@ public class TestGrapplingHook : MonoBehaviour
 		}
 	}
 
+	// 회전 게이지 처리 분리
+	void HandleSwingGauge()
+	{
+		if (!isAttach)
+		{
+			ResetSwingGauge();
+			return;
+		}
+
+		swingGauge.gameObject.SetActive(true);  // 게이지 UI 활성화 
+
+		bool noInput = GameManager.Instance.playerController.inputVec == Vector2.zero;
+		Vector2 hookPos = hook.transform.position;		// 갈고리(회전 중심) 좌표
+		Vector2 playerPos = transform.position;			// 플레이어 좌표
+		Vector2 dir = (playerPos - hookPos).normalized; // 갈고리 -> 플레이어 방향 벡터
+		float angleNow = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg; // 현재 각도(0~360°)
+
+		// 첫 프레임에서는 이전 각도가 없으므로 초기화
+		if (!angleInitialized)
+		{
+			previousAngle = angleNow;
+			angleInitialized = true;
+		}
+
+		// 프레임 간 각도 변화 계산 (360° 넘어가도 정확하게 처리)
+		float delta = Mathf.DeltaAngle(previousAngle, angleNow);
+		previousAngle = angleNow; // 현재 각도를 다음 프레임을 위해 저장
+		ProcessSwingDelta(delta, noInput);
+		accumulatedAngle = Mathf.Clamp(accumulatedAngle, 0, maxAngle);
+		swingGauge.value = accumulatedAngle / maxAngle;
+	}
+
+	void ProcessSwingDelta(float delta, bool noInput)
+	{
+		// delta가 충분히 크면 "회전 중"으로 처리
+		if (Mathf.Abs(delta) <= turnMinDelta)
+		{
+			accumulatedAngle -= decreaseSpeed * Time.deltaTime;
+			if (accumulatedAngle <= 0)
+			{
+				accumulatedAngle = 0;
+				storedDirection = 0;
+			}
+			return;
+		}
+
+		int deltaDir = delta > 0 ? 1 : -1; // 회전 방향 판단
+
+		// 회전 방향이 처음 결정되는 순간
+		if (storedDirection == 0)
+			storedDirection = deltaDir;
+
+		if (deltaDir == storedDirection)
+		{
+			if (noInput)                    // 입력 없을 때
+				accumulatedAngle += decreaseSpeed * Time.deltaTime * 0.05f;
+			else                            // 같은 방향으로 돌면 -> 게이지 증가   
+				accumulatedAngle += Mathf.Abs(delta) * increaseMultiplier;
+		}
+		else                                // 반대 방향으로 돌면 -> 게이지 감소
+		{
+			accumulatedAngle -= Mathf.Abs(delta) * increaseMultiplier * 1.5f;
+
+			if (accumulatedAngle <= 0f)     // 감소하다가 0 이하가 되면 방향 초기화
+			{
+				accumulatedAngle = 0;
+				storedDirection = 0;
+			}
+		}
+	}
+
+	// 회전 게이지 관련 값 초기화
+	void ResetSwingGauge()
+	{
+		// 갈고리에서 떨어지면 모든 값 초기화
+		swingGauge.gameObject.SetActive(false); // 게이지 숨기기
+		accumulatedAngle = 0f;                  // 회전량 초기화
+		swingGauge.value = 0f;                  // UI 리셋
+		angleInitialized = false;               // 다음 회전 때 새 초기화 필요
+		storedDirection = 0;                    // 방향 초기화
+	}
+
 	// 일시적 부스트 효과
 	public void Boost(float gaugePercent)
 	{
@@ -302,34 +398,6 @@ public class TestGrapplingHook : MonoBehaviour
 			StopCoroutine(currentBoost);
 
 		currentBoost = StartCoroutine(BoostRoutine(gaugePercent));
-	}
-
-	// 슬로우 효과 코루틴
-	private IEnumerator SlowRoutine()
-	{
-		sprite.color = Color.red;
-
-		if (colorAdjustments != null)
-			colorAdjustments.saturation.value = -50f;
-
-		Time.timeScale = slowFactor;
-		Time.fixedDeltaTime = 0.02f * Time.timeScale;
-		float elapsed = 0f;
-
-		while (elapsed < slowLength)
-		{
-			if (GameManager.Instance.playerController.isGrounded || isAttach) break;
-
-			elapsed += Time.unscaledDeltaTime;
-			yield return null;
-		}
-
-		Time.timeScale = 1f;
-		Time.fixedDeltaTime = 0.02f;
-		sprite.color = Color.white;
-
-		if (colorAdjustments != null)
-			colorAdjustments.saturation.value = 0f;
 	}
 
 	// 부스트 효과 코루틴
