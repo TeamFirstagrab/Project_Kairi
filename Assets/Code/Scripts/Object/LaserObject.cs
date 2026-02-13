@@ -28,7 +28,7 @@ public class LaserObject : MonoBehaviour
     public string triggerTag = "Player";
     public float activateDelay = 3.5f;
 
-    [Header("Warning Settings")]
+    [Header("경고 설정")]
     public bool useWarning = true;
     public GameObject warningPrefab;
     public float warningDuration = 1f;
@@ -50,17 +50,25 @@ public class LaserObject : MonoBehaviour
     public int waveSegments = 32;
 
     [Header("Start Circle Settings")]
-    public GameObject startCirclePrefab;   // 인스펙터에서 원 프리팹 넣기
-    public float startCircleSize = 0.3f;   // 원 크기
+    public GameObject startCirclePrefab;    // 인스펙터에서 원 프리팹 넣기
+    public float startCircleSize = 0.5f;    // 원 크기
+    [Header("Laser End Circles")]
+    public GameObject endCirclePrefab;      // 작은 원 프리팹
+    public float endCircleSize = 0.5f;      // 원 크기
+    public Material endCircleMaterial;      // 원에 적용할 머티리얼
+    private GameObject startEndCircle;
+    private GameObject laserEndCircle;
+    private GameObject startCircle;
     [Range(0f, 1f)] public float startCircleAlpha = 1f; // 불투명도
 
     [Header("Animation Settings")]
     public float startCircleGrowDuration = 0.3f;  // 원 커지는 시간
     public float laserGrowSpeed = 30f;            // 레이저 길이 증가 속도
     public float delayBeforeLaser = 0.5f;         // 원 커지고 레이저 시작 전 대기 시간 (Inspector에서 수정 가능)
-
-
-    private GameObject startCircle;
+    [Header("레이저 색 변경")]
+    public Color laserColorA = new Color(1f, 0.85f, 0.4f, 1f);   // 밝은 노랑
+    public Color laserColorB = new Color(1f, 0.4f, 0.2f, 1f);    // 주황/붉은색
+    public float colorOscillationSpeed = 50f;                 // 왕복 속도
 
     void Awake()
     {
@@ -70,8 +78,8 @@ public class LaserObject : MonoBehaviour
         if (laserMaterial != null)
             lineRenderer.material = laserMaterial;
 
-        lineRenderer.startWidth = 0.1f;
-        lineRenderer.endWidth = 0.1f;
+        lineRenderer.startWidth = 0.2f;
+        lineRenderer.endWidth = 0.2f;
         lineRenderer.sortingOrder = 12;
         lineRenderer.enabled = false;
     }
@@ -162,6 +170,24 @@ public class LaserObject : MonoBehaviour
 
         StartLaserImmediately();
     }
+    private GameObject CreateEndCircle(Vector3 pos)
+    {
+        if (endCirclePrefab == null) return null;
+
+        GameObject obj = Instantiate(endCirclePrefab, pos, Quaternion.identity);
+        obj.transform.localScale = Vector3.one * endCircleSize;
+
+        var sr = obj.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            if (endCircleMaterial != null)
+                sr.material = endCircleMaterial;
+
+            sr.sortingOrder = lineRenderer.sortingOrder + 2;
+        }
+
+        return obj;
+    }
 
     private void StartLaserImmediately()
     {
@@ -169,6 +195,8 @@ public class LaserObject : MonoBehaviour
         isActive = true;
         timer = 0f;
         lineRenderer.enabled = true;
+        // 시작 원 (레이저 발사 지점)
+        startEndCircle = CreateEndCircle(transform.position);
 
         StartCoroutine(AnimateStartCircleAndLaser());
 
@@ -238,28 +266,39 @@ public class LaserObject : MonoBehaviour
 
     private IEnumerator LaserLoop()
     {
-        Color baseColor = lineRenderer.startColor; // 기본 레이저 색
         while (isActive)
         {
             FireLaser();
 
+            Vector3 startPos = lineRenderer.GetPosition(0);
+            Vector3 endPos = lineRenderer.GetPosition(1);
+
+            // 시작 원 위치
+            if (startEndCircle != null)
+                startEndCircle.transform.position = startPos;
+
+            // 끝 원 없으면 생성
+            if (laserEndCircle == null)
+                laserEndCircle = CreateEndCircle(endPos);
+            else
+                laserEndCircle.transform.position = endPos;
+
             // 텍스처 스크롤
             if (lineRenderer.material != null)
-                lineRenderer.material.mainTextureOffset = new Vector2(Time.time * scrollSpeed, 0f);
+                lineRenderer.material.mainTextureOffset =
+                    new Vector2(Time.time * scrollSpeed, 0f);
 
-            // 레이저 밝기 펄스
-            float brightness = 0.9f + 0.1f * Mathf.Sin(Time.time * 3f); // 10f는 깜빡임 속도
-            Color newColor = new Color(baseColor.r * brightness, baseColor.g * brightness, baseColor.b * brightness, baseColor.a);
+            // 색 왕복
+            float t = (Mathf.Sin(Time.time * colorOscillationSpeed) + 1f) * 0.5f;
+            Color newColor = Color.Lerp(laserColorA, laserColorB, t);
+
             lineRenderer.startColor = newColor;
             lineRenderer.endColor = newColor;
-
-            // 원 위치 갱신
-            if (startCircle != null)
-                startCircle.transform.position = lineRenderer.GetPosition(0);
 
             yield return null;
         }
     }
+
 
     private void CreateStartCircle()
     {
@@ -288,12 +327,15 @@ public class LaserObject : MonoBehaviour
         timer = 0f;
         lineRenderer.enabled = false;
 
-        if (startCircle != null)
-        {
-            Destroy(startCircle);
-            startCircle = null;
-        }
+        if (startCircle != null) Destroy(startCircle);
+        if (startEndCircle != null) Destroy(startEndCircle);
+        if (laserEndCircle != null) Destroy(laserEndCircle);
+
+        startCircle = null;
+        startEndCircle = null;
+        laserEndCircle = null;
     }
+
 
     private void OnTriggerEnter2D(Collider2D other)
     {

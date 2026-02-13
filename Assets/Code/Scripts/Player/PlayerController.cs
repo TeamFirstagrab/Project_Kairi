@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 	public bool isGrounded;
 	public Transform pos;
 	public LayerMask isLayer;
-	public float checkRadious;
+	public float checkRadious = 0.1f;
 	[Header("충돌 체크")]
 	public bool hasCollided = false;
 	[Header("걷기 사운드")]

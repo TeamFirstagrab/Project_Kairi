@@ -33,7 +33,10 @@ public class GameManager : MonoSingleton<GameManager> // 싱글톤 사용
 
     protected new void Awake()
 	{
-		sceneReloader = GetComponent<SceneReloader>();
+        Screen.fullScreenMode = FullScreenMode.Windowed;
+        Screen.SetResolution(1920, 1080, false); // 원하는 창 크기
+
+        sceneReloader = GetComponent<SceneReloader>();
 		escKey = GetComponent<ESCKey>();
 		if(!escKey || !sceneReloader)
 		{
@@ -49,8 +52,8 @@ public class GameManager : MonoSingleton<GameManager> // 싱글톤 사용
 
 		managerInstance = this;
 		DontDestroyOnLoad(this.gameObject);
-        QualitySettings.vSyncCount = 0; // VSync 비활성화 (모니터 주사율 영향 제거)
-        Application.targetFrameRate = 120; // 프레임 120 제한
+        QualitySettings.vSyncCount = 1;   // 모니터 주사율에 동기
+        Application.targetFrameRate = -1; // 제한 안 함
 
         if (Instance != null && Instance != this) // 중복 GameManager 방지
         {
